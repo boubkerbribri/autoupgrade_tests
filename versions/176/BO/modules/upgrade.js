@@ -24,11 +24,12 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     this.currentConfigurationForm = '#currentConfiguration';
     this.putShopUnderMaintenanceButton = `${this.currentConfigurationForm} input[name='putUnderMaintenance']`;
     this.checklistTableRow = row => `${this.currentConfigurationForm} tbody tr:nth-child(${row})`;
-    this.checklistTableColumnImage = (row) => `${this.checklistTableRow(row)} td.img`;
+    this.checklistTableColumnImage = (row) => `${this.checklistTableRow(row)} td img`;
 
     // Expert mode form
     this.channelSelect = '#channel';
     this.archiveSelect = '#archive_prestashop';
+    this.archiveNumber = '#archive_num';
     this.saveButton = '#advanced  input[name="submitConf-channel"]';
     this.configResultAlert = '#configResult';
   }
@@ -43,17 +44,26 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     return this.getTextContent(page, this.titleBlock);
   }
 
+  checkFileExistsWithTimeDelay(timeDelay, projectPath, zipName){
+    for (let i = 0; i < timeDelay; i++) {
+      if (fs.existsSync(`${projectPath}/admin-dev/autoupgrade/download/${zipName}`)) {
+        return;
+      }
+    }
+  }
+
   /**
    * Copy the zip to admin_dev/upgrade/download directory
    * @param page
    * @param projectPath
-   * * @param downloadPath
+   * @param downloadPath
    * @param zipName
    * @returns {Promise<void>}
    */
-  copyZipToUpgradeDirectory(page, projectPath, downloadPath, zipName) {
+  async copyZipToUpgradeDirectory(page, projectPath, downloadPath, zipName) {
     exec(`sudo chmod 777 -R ${projectPath}/admin-dev/`);
     exec(`sudo cp ${downloadPath}/${zipName} ${projectPath}/admin-dev/autoupgrade/download`);
+    await this.checkFileExistsWithTimeDelay(5000, projectPath, zipName);
     exec(`sudo chmod 777 -R ${projectPath}/admin-dev/autoupgrade/`);
   }
 
@@ -62,16 +72,17 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    * @param page
    * @param channel
    * @param archive
+   * @param newVersion
    * @returns {Promise<string>}
    */
-  async fillExpertModeForm(page, channel, archive) {
-    await page.waitForTimeout(10000);
+  async fillExpertModeForm(page, channel, archive, newVersion) {
+    await this.reloadPage(page);
     await this.selectByVisibleText(page, this.channelSelect, channel);
     await this.selectByVisibleText(page, this.archiveSelect, archive);
-    await this.setValue(page, '1.7.7.0');
+    await this.setValue(page, this.archiveNumber, newVersion);
 
     await page.click(this.saveButton);
-    return this.getTextContent(page, this.configResultValidationMessage);
+    return this.getTextContent(page, this.configResultAlert, 2000);
   }
 
   /**
@@ -80,7 +91,7 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    * @returns {Promise<void>}
    */
   async putShopUnderMaintenance(page) {
-    if (this.elementVisible(page, this.putShopUnderMaintenanceButton, 2000)) {
+    if (await this.elementVisible(page, this.putShopUnderMaintenanceButton, 2000)) {
       await page.click(this.putShopUnderMaintenanceButton);
     }
   }

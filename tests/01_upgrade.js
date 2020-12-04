@@ -1,4 +1,4 @@
-require('/projet/prestashop_autoupgrade_tests/globals.js');
+require('../globals.js');
 require('module-alias/register');
 
 const {expect} = require('chai');
@@ -34,7 +34,7 @@ Install 1-Click Upgrade module
 Upgrade
 Log out
  */
-describe(`Upgrade Prestashop ${global.PS_VERSION} to ${global.PS_VERSION_TO_UPGRADE}`, async () => {
+describe(`Upgrade Prestashop '${global.PS_VERSION}' to '${global.PS_VERSION_TO_UPGRADE}'`, async () => {
   // before and after functions
   before(async function () {
     browserContext = await helper.createBrowserContext(this.browser);
@@ -111,13 +111,13 @@ describe(`Upgrade Prestashop ${global.PS_VERSION} to ${global.PS_VERSION_TO_UPGR
   });
 
   it('should fill \'Expert mode\' form', async () => {
-    const textResult = await upgradeModulePage.fillExpertModeForm(page, 'Local archive', global.ZIP_NAME);
+    const textResult = await upgradeModulePage.fillExpertModeForm(page, 'Local archive', global.ZIP_NAME, global.PS_VERSION_TO_UPGRADE);
 
-    await expect(textResult).to.contain(upgradeModulePage.configResultAlert);
+    await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
   });
 
   it('should put the shop under maintenance and check that the checklist is all green', async () => {
-    await upgradeModulePage.putShopUnderMaintenance();
+    await upgradeModulePage.putShopUnderMaintenance(page);
 
     for (let i = 1; i <= 10; i++) {
       const textResult = await upgradeModulePage.getRowImageContent(page, i);
