@@ -44,6 +44,12 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     return this.getTextContent(page, this.titleBlock);
   }
 
+  /**
+   * Check file exists with time delay
+   * @param timeDelay
+   * @param projectPath
+   * @param zipName
+   */
   checkFileExistsWithTimeDelay(timeDelay, projectPath, zipName){
     for (let i = 0; i < timeDelay; i++) {
       if (fs.existsSync(`${projectPath}/admin-dev/autoupgrade/download/${zipName}`)) {
