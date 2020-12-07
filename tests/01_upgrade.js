@@ -128,7 +128,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   it('should click on \'UPGRADE PRESTASHOP NOW\'', async () => {
     const testResult = await upgradeModulePage.upgradePrestaShopNow(page);
-    await expect(testResult).to.equal();
+    await expect(testResult).to.equal(upgradeModulePage.upgradeValidationMessage);
   });
 
   it('should log out from BO', async () => {

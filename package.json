@@ -16,6 +16,6 @@
     "mocha": "^8.2.1"
   },
   "devDependencies": {
-    "prestashop_test_lib": "0.0.8"
+    "prestashop_test_lib": "0.0.9"
   }
 }

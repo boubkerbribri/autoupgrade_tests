@@ -16,6 +16,7 @@ class Upgrade extends ModuleConfigurationPage.constructor {
 
     this.pageTitle = '1-Click Upgrade';
     this.configResultValidationMessage = 'Configuration successfully updated. ';
+    this.upgradeValidationMessage = 'Upgrade complete';
 
     // Selectors
     // Current configuration form
@@ -61,7 +62,11 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    * @returns {Promise<void>}
    */
   async copyZipToUpgradeDirectory(page, projectPath, downloadPath, zipName) {
-    exec(`sudo chmod 777 -R ${projectPath}/admin-dev/`);
+    exec(`sudo chmod 777 -R ${projectPath}/admin-dev/`, (error) => {
+      if (error !== null) {
+        return
+      }
+    });
     exec(`sudo cp ${downloadPath}/${zipName} ${projectPath}/admin-dev/autoupgrade/download`);
     await this.checkFileExistsWithTimeDelay(5000, projectPath, zipName);
     exec(`sudo chmod 777 -R ${projectPath}/admin-dev/autoupgrade/`);
@@ -106,6 +111,12 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     return this.getAttributeContent(page, this.checklistTableColumnImage(row), 'alt');
   }
 
+  /**
+   * Wait for upgrade
+   * @param page
+   * @param timeDelay
+   * @returns {Promise<void>}
+   */
   async waitForUpgrade(page, timeDelay){
     for (let i = 0; i < timeDelay; i++) {
       if (await this.elementVisible(page, this.alertSuccess)) {
