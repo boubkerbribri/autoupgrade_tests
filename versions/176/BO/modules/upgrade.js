@@ -18,13 +18,16 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     this.configResultValidationMessage = 'Configuration successfully updated. ';
 
     // Selectors
-    this.titleBlock = 'h1.page-title';
-
     // Current configuration form
     this.currentConfigurationForm = '#currentConfiguration';
     this.putShopUnderMaintenanceButton = `${this.currentConfigurationForm} input[name='putUnderMaintenance']`;
     this.checklistTableRow = row => `${this.currentConfigurationForm} tbody tr:nth-child(${row})`;
     this.checklistTableColumnImage = (row) => `${this.checklistTableRow(row)} td img`;
+
+    // Start your upgrade form
+    this.upgradeNowButton = '#upgradeNow';
+    this.currentlyProcessingDiv = '#currentlyProcessing';
+    this.alertSuccess = '#upgradeResultCheck.alert-success';
 
     // Expert mode form
     this.channelSelect = '#channel';
@@ -34,23 +37,14 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     this.configResultAlert = '#configResult';
   }
 
-  /**
-   * @override
-   * Get page title
-   * @param page
-   * @return {Promise<string>}
-   */
-  getPageTitle(page) {
-    return this.getTextContent(page, this.titleBlock);
-  }
-
+  // Methods
   /**
    * Check file exists with time delay
    * @param timeDelay
    * @param projectPath
    * @param zipName
    */
-  checkFileExistsWithTimeDelay(timeDelay, projectPath, zipName){
+  checkFileExistsWithTimeDelay(timeDelay, projectPath, zipName) {
     for (let i = 0; i < timeDelay; i++) {
       if (fs.existsSync(`${projectPath}/admin-dev/autoupgrade/download/${zipName}`)) {
         return;
@@ -110,6 +104,27 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    */
   async getRowImageContent(page, row) {
     return this.getAttributeContent(page, this.checklistTableColumnImage(row), 'alt');
+  }
+
+  async waitForUpgrade(page, timeDelay){
+    for (let i = 0; i < timeDelay; i++) {
+      if (await this.elementVisible(page, this.alertSuccess)) {
+        return;
+      }
+    }
+  }
+
+  /**
+   * Upgrade prestashop now
+   * @param page
+   * @returns {Promise<string>}
+   */
+  async upgradePrestaShopNow(page){
+    await page.click(this.upgradeNowButton);
+    await this.waitForVisibleSelector(page, this.currentlyProcessingDiv);
+    await this.waitForUpgrade(page, 50000);
+
+    return this.getTextContent(page, this.alertSuccess);
   }
 }
 

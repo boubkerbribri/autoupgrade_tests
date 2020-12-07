@@ -1,5 +1,5 @@
-require('../globals.js');
 require('module-alias/register');
+require('../globals.js');
 
 const {expect} = require('chai');
 const helper = require('prestashop_test_lib/kernel/utils/helpers');
@@ -123,6 +123,11 @@ describe(`Upgrade Prestashop '${global.PS_VERSION}' to '${global.PS_VERSION_TO_U
       const textResult = await upgradeModulePage.getRowImageContent(page, i);
       await expect(textResult).to.equal('ok');
     }
+  });
+
+  it('should click on \'UPGRADE PRESTASHOP NOW\'', async () =>{
+  const testResult = await upgradeModulePage.upgradePrestaShopNow(page);
+    await expect(testResult).to.equal();
   });
 
   it('should log out from BO', async () => {
