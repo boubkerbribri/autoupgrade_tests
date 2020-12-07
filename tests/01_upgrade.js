@@ -28,13 +28,14 @@ const moduleToInstall = {
 
 /*
 Go to login page
-check PS version
+Check PS version
 Log in
 Install 1-Click Upgrade module
 Upgrade
 Log out
+Check new version
  */
-describe(`Upgrade Prestashop '${global.PS_VERSION}' to '${global.PS_VERSION_TO_UPGRADE}'`, async () => {
+describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSION_TO_UPGRADE}'`, async () => {
   // before and after functions
   before(async function () {
     browserContext = await helper.createBrowserContext(this.browser);
@@ -125,8 +126,8 @@ describe(`Upgrade Prestashop '${global.PS_VERSION}' to '${global.PS_VERSION_TO_U
     }
   });
 
-  it('should click on \'UPGRADE PRESTASHOP NOW\'', async () =>{
-  const testResult = await upgradeModulePage.upgradePrestaShopNow(page);
+  it('should click on \'UPGRADE PRESTASHOP NOW\'', async () => {
+    const testResult = await upgradeModulePage.upgradePrestaShopNow(page);
     await expect(testResult).to.equal();
   });
 
@@ -135,5 +136,10 @@ describe(`Upgrade Prestashop '${global.PS_VERSION}' to '${global.PS_VERSION_TO_U
 
     const pageTitle = await loginPage.getPageTitle(page);
     await expect(pageTitle).to.contains(loginPage.pageTitle);
+  });
+
+  it('should check PS version', async () => {
+    const psVersion = await loginPage.getPrestashopVersion(page);
+    await expect(psVersion).to.contains(global.PS_VERSION_TO_UPGRADE);
   });
 });
