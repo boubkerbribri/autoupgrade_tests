@@ -10,12 +10,14 @@ const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/vers
 const configClassMap = require('../configClassMap.js');
 
 const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
+const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_TO_UPGRADE, configClassMap);
 
 // Import pages
 const loginPage = versionSelectResolver.require('BO/login/index.js');
 const dashboardPage = versionSelectResolver.require('BO/dashboard/index.js');
 const moduleCatalogPage = versionSelectResolver.require('BO/modules/moduleCatalog.js');
 const upgradeModulePage = versionSelectResolver.require('BO/modules/upgrade.js');
+const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
 
 // Browser vars
 let browserContext;
@@ -117,7 +119,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
     await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
   });
 
-  it('should put the shop under maintenance and check that the checklist is all green', async () => {
+  it('should put the shop under maintenance and check if the checklist is all green', async () => {
     await upgradeModulePage.putShopUnderMaintenance(page);
 
     for (let i = 1; i <= 10; i++) {
@@ -126,20 +128,21 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
     }
   });
 
-  it('should click on \'UPGRADE PRESTASHOP NOW\'', async () => {
+  it('should click on \'UPGRADE PRESTASHOP NOW\' and wait for the upgrade', async () => {
     const testResult = await upgradeModulePage.upgradePrestaShopNow(page);
     await expect(testResult).to.equal(upgradeModulePage.upgradeValidationMessage);
   });
 
   it('should log out from BO', async () => {
-    await dashboardPage.logoutBO(page);
+    await upgradeModulePage.logoutBO(page);
 
-    const pageTitle = await loginPage.getPageTitle(page);
-    await expect(pageTitle).to.contains(loginPage.pageTitle);
+    await newLoginPage.reloadPage(page);
+    const pageTitle = await newLoginPage.getPageTitle(page);
+    await expect(pageTitle).to.contains(newLoginPage.pageTitle);
   });
 
   it('should check PS version', async () => {
-    const psVersion = await loginPage.getPrestashopVersion(page);
+    const psVersion = await newLoginPage.getPrestashopVersion(page);
     await expect(psVersion).to.contains(global.PS_VERSION_TO_UPGRADE);
   });
 });

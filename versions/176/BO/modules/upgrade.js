@@ -115,12 +115,12 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    * Wait for upgrade
    * @param page
    * @param timeDelay
-   * @returns {Promise<void>}
+   * @returns {Promise<string>}
    */
-  async waitForUpgrade(page, timeDelay){
+  async waitForUpgrade(page, timeDelay) {
     for (let i = 0; i < timeDelay; i++) {
       if (await this.elementVisible(page, this.alertSuccess)) {
-        return;
+        return this.getTextContent(page, this.alertSuccess);
       }
     }
   }
@@ -130,12 +130,11 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    * @param page
    * @returns {Promise<string>}
    */
-  async upgradePrestaShopNow(page){
+  async upgradePrestaShopNow(page) {
     await page.click(this.upgradeNowButton);
     await this.waitForVisibleSelector(page, this.currentlyProcessingDiv);
-    await this.waitForUpgrade(page, 50000);
 
-    return this.getTextContent(page, this.alertSuccess);
+    return this.waitForUpgrade(page, 500000);
   }
 }
 
