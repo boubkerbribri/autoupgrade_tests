@@ -3,6 +3,7 @@ require('@root/globals.js');
 
 const {expect} = require('chai');
 const helper = require('prestashop_test_lib/kernel/utils/helpers');
+const filesHelper = require('@root/utils/filesHelper.js');
 
 // Get resolver
 const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/versionSelectResolver');
@@ -10,7 +11,7 @@ const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/vers
 const configClassMap = require('@root/configClassMap.js');
 
 const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
-const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_TO_UPGRADE, configClassMap);
+const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_UPGRADE_TO, configClassMap);
 
 // Import pages
 const loginPage = versionSelectResolver.require('BO/login/index.js');
@@ -27,6 +28,7 @@ let page;
 const moduleToInstall = {
   name: '1-Click Upgrade',
   tag: 'autoupgrade',
+  downloadFolder: `${global.PS_FOLDER.ADMIN}/autoupgrade/download`,
 };
 
 /*
@@ -38,7 +40,7 @@ Upgrade
 Log out
 Check new version
  */
-describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSION_TO_UPGRADE}'`, async () => {
+describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSION_UPGRADE_TO}'`, async () => {
   // before and after functions
   before(async function () {
     browserContext = await helper.createBrowserContext(this.browser);
@@ -130,7 +132,16 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
   }
 
   it('should copy the new Zip to the auto upgrade directory', async () => {
-    await upgradeModulePage.copyZipToUpgradeDirectory(page, global.PROJECT_PATH, global.DOWNLOAD_PATH, global.ZIP_NAME);
+    await filesHelper.moveFile(
+      `${global.DOWNLOAD_PATH}/${global.ZIP_NAME}`,
+      `${global.PS_FOLDER.PATH}/${moduleToInstall.downloadFolder}/${global.ZIP_NAME}`,
+    );
+
+    const doesUpgradeFileExist = await filesHelper.doesFileExist(
+      `${global.PS_FOLDER.PATH}/${moduleToInstall.downloadFolder}/${global.ZIP_NAME}`,
+    );
+
+    await expect(doesUpgradeFileExist, 'File was not moved correctly').to.be.true;
   });
 
   it('should fill \'Expert mode\' form', async () => {
