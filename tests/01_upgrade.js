@@ -18,7 +18,7 @@ const loginPage = versionSelectResolver.require('BO/login/index.js');
 const dashboardPage = versionSelectResolver.require('BO/dashboard/index.js');
 const moduleCatalogPage = versionSelectResolver.require('BO/modules/moduleCatalog.js');
 const moduleManagerPage = versionSelectResolver.require('BO/modules/moduleManager.js');
-const upgradeModulePage = versionSelectResolver.require('BO/modules/upgrade.js');
+const upgradeModulePage = versionSelectResolver.require('BO/modules/autoupgrade/index.js');
 const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
 
 // Browser vars

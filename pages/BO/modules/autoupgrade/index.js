@@ -37,14 +37,15 @@ class Upgrade extends ModuleConfigurationPage.constructor {
   }
 
   // Methods
+
   /**
-   * Fill expert mode form
-   * @param page
-   * @param channel
-   * @param archive
-   * @param newVersion
-   * @returns {Promise<string>}
-   */
+     * Fill expert mode form
+     * @param page
+     * @param channel
+     * @param archive
+     * @param newVersion
+     * @returns {Promise<string>}
+     */
   async fillExpertModeForm(page, channel, archive, newVersion) {
     await this.reloadPage(page);
     await this.selectByVisibleText(page, this.channelSelect, channel);
@@ -56,10 +57,10 @@ class Upgrade extends ModuleConfigurationPage.constructor {
   }
 
   /**
-   * Put shop under maintenance
-   * @param page
-   * @returns {Promise<void>}
-   */
+     * Put shop under maintenance
+     * @param page
+     * @returns {Promise<void>}
+     */
   async putShopUnderMaintenance(page) {
     if (await this.elementVisible(page, this.putShopUnderMaintenanceButton, 2000)) {
       await page.click(this.putShopUnderMaintenanceButton);
@@ -67,21 +68,21 @@ class Upgrade extends ModuleConfigurationPage.constructor {
   }
 
   /**
-   * Get all checklist image column content
-   * @param page
-   * @param row
-   * @returns {Promise<[]>}
-   */
+     * Get all checklist image column content
+     * @param page
+     * @param row
+     * @returns {Promise<[]>}
+     */
   async getRowImageContent(page, row) {
     return this.getAttributeContent(page, this.checklistTableColumnImage(row), 'alt');
   }
 
   /**
-   * Wait for upgrade
-   * @param page
-   * @param timeDelay
-   * @returns {Promise<string>}
-   */
+     * Wait for upgrade
+     * @param page
+     * @param timeDelay
+     * @returns {Promise<string>}
+     */
   async waitForUpgrade(page, timeDelay) {
     let upgradeFinished = false;
     let i = 0;
@@ -98,10 +99,10 @@ class Upgrade extends ModuleConfigurationPage.constructor {
   }
 
   /**
-   * Upgrade prestashop now
-   * @param page
-   * @returns {Promise<string>}
-   */
+     * Upgrade prestashop now
+     * @param page
+     * @returns {Promise<string>}
+     */
   async upgradePrestaShopNow(page) {
     await page.click(this.upgradeNowButton);
     await this.waitForVisibleSelector(page, this.currentlyProcessingDiv);
