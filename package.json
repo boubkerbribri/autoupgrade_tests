@@ -4,7 +4,16 @@
   "description": "Tests for 1-click-upgrade-module",
   "main": "01_upgrade.js",
   "scripts": {
+    "lint": "eslint --ignore-path .gitignore .",
+    "lint-fix": "eslint --fix --ignore-path .gitignore .",
     "test": "./node_modules/mocha/bin/mocha --file node_modules/prestashop_test_lib/kernel/utils/setup.js --recursive tests/*"
+  },
+  "_moduleAliases": {
+    "@root": ".",
+    "@commonTests": "campaigns/commonTests",
+    "@data": "campaigns/data",
+    "@utils": "campaigns/utils",
+    "@tools": "campaigns/tools"
   },
   "keywords": [
     "prestashop",
@@ -13,9 +22,15 @@
   ],
   "dependencies": {
     "chai": "^4.2.0",
-    "mocha": "^8.2.1"
+    "eslint-config-prestashop": "^0.1.0",
+    "mocha": "^8.2.1",
+    "module-alias": "^2.2.2",
+    "prestashop_test_lib": "0.0.9"
   },
   "devDependencies": {
-    "prestashop_test_lib": "0.0.9"
+    "babel-eslint": "^10.1.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.2.0",
+    "eslint-plugin-import": "^2.22.1"
   }
 }

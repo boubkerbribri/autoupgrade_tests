@@ -1,5 +1,5 @@
 require('module-alias/register');
-require('../globals.js');
+require('@root/globals.js');
 
 const {expect} = require('chai');
 const helper = require('prestashop_test_lib/kernel/utils/helpers');
@@ -7,7 +7,7 @@ const helper = require('prestashop_test_lib/kernel/utils/helpers');
 // Get resolver
 const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/versionSelectResolver');
 
-const configClassMap = require('../configClassMap.js');
+const configClassMap = require('@root/configClassMap.js');
 
 const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
 const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_TO_UPGRADE, configClassMap);
@@ -72,7 +72,6 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   if (global.PS_VERSION.includes('1.7.4')) {
     it('should go to Modules & Services page', async () => {
-
       await dashboardPage.goToSubMenu(
         page,
         dashboardPage.modulesParentLink,
@@ -90,7 +89,6 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
       await expect(pageTitle).to.contains(moduleManagerPage.selectionPageTitle);
     });
   } else {
-
     it('should go to Modules Catalog page', async () => {
       await dashboardPage.goToSubMenu(
         page,
@@ -136,7 +134,12 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
   });
 
   it('should fill \'Expert mode\' form', async () => {
-    const textResult = await upgradeModulePage.fillExpertModeForm(page, 'Local archive', global.ZIP_NAME, global.PS_VERSION_TO_UPGRADE);
+    const textResult = await upgradeModulePage.fillExpertModeForm(
+      page,
+      'Local archive',
+      global.ZIP_NAME,
+      global.PS_VERSION_TO_UPGRADE,
+    );
 
     await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
   });

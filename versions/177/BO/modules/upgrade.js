@@ -1,14 +1,12 @@
 // Get resolver
 const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/versionSelectResolver');
 
-const configClassMap = require('../../../../configClassMap.js');
+const configClassMap = require('@root/configClassMap.js');
 
 const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
 
 // Import BOBasePage
 const ModuleConfigurationPage = versionSelectResolver.require('BO/modules/moduleConfiguration/index.js');
-const fs = require('fs');
-const exec = require('child_process').exec;
 
 class Upgrade extends ModuleConfigurationPage.constructor {
   constructor() {
@@ -23,7 +21,7 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     this.currentConfigurationForm = '#currentConfiguration';
     this.putShopUnderMaintenanceButton = `${this.currentConfigurationForm} input[name='putUnderMaintenance']`;
     this.checklistTableRow = row => `${this.currentConfigurationForm} tbody tr:nth-child(${row})`;
-    this.checklistTableColumnImage = (row) => `${this.checklistTableRow(row)} td img`;
+    this.checklistTableColumnImage = row => `${this.checklistTableRow(row)} td img`;
 
     // Start your upgrade form
     this.upgradeNowButton = '#upgradeNow';
@@ -39,38 +37,6 @@ class Upgrade extends ModuleConfigurationPage.constructor {
   }
 
   // Methods
-  /**
-   * Check file exists with time delay
-   * @param timeDelay
-   * @param projectPath
-   * @param zipName
-   */
-  checkFileExistsWithTimeDelay(timeDelay, projectPath, zipName) {
-    for (let i = 0; i < timeDelay; i++) {
-      if (fs.existsSync(`${projectPath}/admin-dev/autoupgrade/download/${zipName}`)) {
-        return;
-      }
-    }
-  }
-
-  /**
-   * Copy the zip to admin_dev/upgrade/download directory
-   * @param page
-   * @param projectPath
-   * @param downloadPath
-   * @param zipName
-   * @returns {Promise<void>}
-   */
-  async copyZipToUpgradeDirectory(page, projectPath, downloadPath, zipName) {
-    exec(`sudo chmod 777 -R ${projectPath}/admin-dev/`, (error) => {
-      if (error !== null) {
-        return
-      }
-    });
-    exec(`sudo cp ${downloadPath}/${zipName} ${projectPath}/admin-dev/autoupgrade/download`);
-    await this.checkFileExistsWithTimeDelay(5000, projectPath, zipName);
-    exec(`sudo chmod 777 -R ${projectPath}/admin-dev/autoupgrade/`);
-  }
 
   /**
    * Fill expert mode form
@@ -118,11 +84,18 @@ class Upgrade extends ModuleConfigurationPage.constructor {
    * @returns {Promise<string>}
    */
   async waitForUpgrade(page, timeDelay) {
-    for (let i = 0; i < timeDelay; i++) {
-      if (await this.elementVisible(page, this.alertSuccess)) {
-        return this.getTextContent(page, this.alertSuccess);
-      }
+    let upgradeFinished = false;
+    let i = 0;
+
+    while (!upgradeFinished && i < timeDelay) {
+      upgradeFinished = await this.elementVisible(page, this.alertSuccess);
+      i += 1;
     }
+
+    if (upgradeFinished) {
+      return this.getTextContent(page, this.alertSuccess);
+    }
+    throw new Error('Upgrade is not finished');
   }
 
   /**

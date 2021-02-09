@@ -1,7 +1,7 @@
 // Get resolver
 const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/versionSelectResolver');
 
-const configClassMap = require('../../../../configClassMap.js');
+const configClassMap = require('@root/configClassMap.js');
 
 const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
 
@@ -20,7 +20,6 @@ class ModuleManager extends ModuleManagerPage.constructor {
   /*
   Methods
    */
-
 }
 
 module.exports = new ModuleManager();
