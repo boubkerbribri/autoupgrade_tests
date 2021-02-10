@@ -87,8 +87,8 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
     it('should go to Selection tab', async () => {
       await moduleManagerPage.goToSelectionPage(page);
 
-      const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
+      const pageTitle = await moduleCatalogPage.getPageTitle(page);
+      await expect(pageTitle).to.contains(moduleCatalogPage.pageTitle);
     });
   } else {
     it('should go to Modules Catalog page', async () => {
@@ -115,21 +115,12 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
     await expect(textResult).to.contain(moduleCatalogPage.installMessageSuccessful(moduleToInstall.tag));
   });
 
-  if (global.PS_VERSION.includes('1.7.4')) {
-    it('should go to module configuration page', async () => {
-      await moduleManagerPage.goToConfigurationPage(page, moduleToInstall.name);
+  it('should go to module configuration page', async () => {
+    await moduleCatalogPage.goToConfigurationPage(page, moduleToInstall.name);
 
-      const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
-    });
-  } else {
-    it('should go to module configuration page', async () => {
-      await moduleCatalogPage.goToConfigurationPage(page, moduleToInstall.name);
-
-      const pageTitle = await upgradeModulePage.getPageTitle(page);
-      await expect(pageTitle).to.contains(upgradeModulePage.pageTitle);
-    });
-  }
+    const pageTitle = await upgradeModulePage.getPageTitle(page);
+    await expect(pageTitle).to.contains(upgradeModulePage.pageTitle);
+  });
 
   it('should copy the new Zip to the auto upgrade directory', async () => {
     await filesHelper.moveFile(
