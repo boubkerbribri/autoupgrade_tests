@@ -16,8 +16,8 @@ const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_UPG
 // Import pages
 const loginPage = versionSelectResolver.require('BO/login/index.js');
 const dashboardPage = versionSelectResolver.require('BO/dashboard/index.js');
-const moduleCatalogPage = versionSelectResolver.require('BO/modules/moduleCatalog.js');
-const moduleManagerPage = versionSelectResolver.require('BO/modules/moduleManager.js');
+const moduleCatalogPage = versionSelectResolver.require('BO/modules/moduleCatalog/index.js');
+const moduleManagerPage = versionSelectResolver.require('BO/modules/moduleManager/index.js');
 const upgradeModulePage = versionSelectResolver.require('BO/modules/autoupgrade/index.js');
 const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
 
@@ -88,7 +88,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
       await moduleManagerPage.goToSelectionPage(page);
 
       const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.selectionPageTitle);
+      await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
     });
   } else {
     it('should go to Modules Catalog page', async () => {
@@ -117,14 +117,14 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   if (global.PS_VERSION.includes('1.7.4')) {
     it('should go to module configuration page', async () => {
-      await moduleManagerPage.goToModuleConfigurationPage(page, moduleToInstall.name);
+      await moduleManagerPage.goToConfigurationPage(page, moduleToInstall.name);
 
       const pageTitle = await moduleManagerPage.getPageTitle(page);
       await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
     });
   } else {
     it('should go to module configuration page', async () => {
-      await moduleCatalogPage.goToModuleConfigurationPage(page, moduleToInstall.name);
+      await moduleCatalogPage.goToConfigurationPage(page, moduleToInstall.name);
 
       const pageTitle = await upgradeModulePage.getPageTitle(page);
       await expect(pageTitle).to.contains(upgradeModulePage.pageTitle);
@@ -149,7 +149,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
       page,
       'Local archive',
       global.ZIP_NAME,
-      global.PS_VERSION_TO_UPGRADE,
+      global.PS_VERSION_UPGRADE_TO,
     );
 
     await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
@@ -179,6 +179,6 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   it('should check PS version', async () => {
     const psVersion = await newLoginPage.getPrestashopVersion(page);
-    await expect(psVersion).to.contains(global.PS_VERSION_TO_UPGRADE);
+    await expect(psVersion).to.contains(global.PS_VERSION_UPGRADE_TO);
   });
 });

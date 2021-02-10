@@ -88,14 +88,15 @@ class Upgrade extends ModuleConfigurationPage.constructor {
     let i = 0;
 
     while (!upgradeFinished && i < timeDelay) {
-      upgradeFinished = await this.elementVisible(page, this.alertSuccess);
-      i += 1;
+      upgradeFinished = await this.elementVisible(page, this.alertSuccess, 200);
+      i += 200;
     }
 
     if (upgradeFinished) {
       return this.getTextContent(page, this.alertSuccess);
     }
-    throw new Error('Upgrade is not finished');
+
+    throw new Error(`Upgrade is not complete after ${timeDelay / 1000}sec`);
   }
 
   /**
