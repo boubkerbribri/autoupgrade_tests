@@ -1,0 +1,31 @@
+name: Nightly upgrades
+
+on: [push, pull_request]
+
+jobs:
+  upgrade:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        ps_version_from:
+          - to_download: 1.7.4.4
+            for_test: 1.7.4
+          - to_download: 1.7.5.2
+            for_test: 1.7.5
+          - to_download: 1.7.6.9
+            for_test: 1.7.6
+          - to_download: 1.7.7.1
+            for_test: 1.7.7
+
+        ps_version_to:
+          - branch: 1.7.7.x
+            version: 1.7.7
+          - branch: develop
+            version: 1.7.8
+
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v2
