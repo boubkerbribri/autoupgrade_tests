@@ -4,8 +4,9 @@ on: [push, pull_request]
 
 jobs:
   upgrade:
-
     runs-on: ubuntu-latest
+    env:
+      nightly-storage: https://storage.googleapis.com/prestashop-core-nightly
 
     strategy:
       matrix:
@@ -20,12 +21,21 @@ jobs:
             for_test: 1.7.7
 
         ps_version_to:
-          - branch: 1.7.7.x
-            version: 1.7.7
-          - branch: develop
-            version: 1.7.8
+          - version: 1.7.7
+            filename: 1.7.7.x-prestashop-1.7.7.2.zip
+          - version: 1.7.8
+            filename: develop-prestashop-1.7.8.0.zip
 
       fail-fast: false
 
     steps:
-      - uses: actions/checkout@v2
+      - name: Get today date
+        run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
+      - uses: suisei-cn/actions-download-file@v1
+        name: Download nightly file
+        with:
+          url: "${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          target: nightly-build/
+
+      - name: Check file
+        run : ls nightly-build/
