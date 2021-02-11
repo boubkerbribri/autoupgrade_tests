@@ -14,7 +14,7 @@ services:
     container_name: ps_web
     env_file: .env
     volumes:
-      - nightly-build:nightly-build
+      - ./nightly-build:./nightly-build
       - /var/www/html:/var/www/html
     ports:
       - 80:80
