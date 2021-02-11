@@ -13,6 +13,8 @@ services:
       dockerfile: .docker/Dockerfile
     container_name: ps_web
     env_file: .env
+    environment:
+      - PS_VERSION=$PS_VERSION
     volumes:
       - ./nightly-build:./nightly-build
       - /var/www/html:/var/www/html
