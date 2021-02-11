@@ -10,5 +10,5 @@ ADD https://www.prestashop.com/download/old/prestashop_${PS_VERSION}.zip /tmp/pr
 RUN mkdir -p /var/www/html \
 	&& unzip -q /tmp/prestashop.zip -d /var/www/html/ \
 	&& bash /tmp/ps-extractor.sh /var/www/html \
-	&& chmod 777 -R /var/www/html
+	&& chmod 777 -R /var/www/html \
 	&& rm /tmp/prestashop.zip
