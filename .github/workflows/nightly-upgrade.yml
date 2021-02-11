@@ -39,7 +39,7 @@ jobs:
           target: nightly-build/
       - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
         env:
-          VERSION: ${{ matrix.ps_version_from.to_download }}
+          PS_VERSION: ${{ matrix.ps_version_from.to_download }}
         shell: bash
         run : |
           docker-compose -f docker-compose.yml up -d
