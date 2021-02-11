@@ -9,7 +9,9 @@ services:
 
   ps_web:
     build:
+      context: ./
       dockerfile: .docker/Dockerfile
+    container_name: ps_web
     env_file: .env
     volumes:
       - nightly-build:nightly-build
