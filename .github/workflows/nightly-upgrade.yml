@@ -47,18 +47,29 @@ jobs:
         with:
           time: 60s
 
-      # Run tests
-      - name: Setup Node
-        uses: actions/setup-node@v2
+      - name: Screenshot test
+        uses: swinton/screenshot-website@v1.x
         with:
-          node-version: 10
-      - name: Install dependencies
-        run: npm install
-      - name: Run tests
-        env:
-          URL_FO: "http://localhost:8081/"
-          PS_VERSION: ${{ matrix.ps_version_from.for_test }}
-          PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
-          DOWNLOAD_PATH: nightly-build
-          ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-        run: npm run test
+          source: http://localhost:8081/admin-dev/
+          destination: screenshot.png
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: ./screenshot.png
+
+
+      # Run tests
+      #- name: Setup Node
+       # uses: actions/setup-node@v2
+        #with:
+         # node-version: 10
+      #- name: Install dependencies
+       # run: npm install
+      #- name: Run tests
+       # env:
+        #  URL_FO: "http://localhost:8081/"
+         # PS_VERSION: ${{ matrix.ps_version_from.for_test }}
+          #PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
+          #DOWNLOAD_PATH: nightly-build
+          #ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+        #run: npm run test
