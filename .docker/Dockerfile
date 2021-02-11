@@ -1,7 +1,7 @@
 FROM prestashop/base:7.1-apache
 LABEL maintainer="PrestaShop Core Team <coreteam@prestashop.com>"
 
-ENV PS_VERSION $PS_VERSION
+ARG PS_VERSION
 
 # Get PrestaShop
 ADD https://www.prestashop.com/download/old/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
