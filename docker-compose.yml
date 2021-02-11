@@ -11,10 +11,10 @@ services:
     build:
       context: ./
       dockerfile: .docker/Dockerfile
+      args:
+        - PS_VERSION=$PS_VERSION
     container_name: ps_web
     env_file: .env
-    environment:
-      - PS_VERSION=$PS_VERSION
     volumes:
       - ./nightly-build:./nightly-build
       - /var/www/html:/var/www/html
