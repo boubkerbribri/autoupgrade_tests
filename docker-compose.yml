@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+
+  ps_db:
+    image: mysql:5.7
+    container_name: ps_db
+    env_file: .env
+
+  ps_web:
+    build:
+      dockerfile: .docker/Dockerfile
+    env_file: .env
+    volumes:
+      - nightly-build:nightly-build
+      - /var/www/html:/var/www/html
+    ports:
+      - 80:80
+
+networks:
+  ps-net:
