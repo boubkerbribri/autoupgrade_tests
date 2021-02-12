@@ -56,7 +56,7 @@ jobs:
         run: npm install
       - name: Run tests
         env:
-          URL_FO: "http://localhost:8081/"
+          URL_FO: "http://localhost/"
           PS_VERSION: ${{ matrix.ps_version_from.for_test }}
           PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
           DOWNLOAD_PATH: nightly-build
