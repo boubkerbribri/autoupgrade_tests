@@ -50,7 +50,7 @@ jobs:
       - name: Screenshot test
         uses: swinton/screenshot-website@v1.x
         with:
-          source: http://localhost:8081/
+          source: http://localhost:8080/
           destination: screenshot.png
       - uses: actions/upload-artifact@v2
         with:
