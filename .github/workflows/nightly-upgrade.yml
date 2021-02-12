@@ -45,12 +45,12 @@ jobs:
       - name: Wait for prestashop to be ready
         uses: juliangruber/sleep-action@v1
         with:
-          time: 60s
+          time: 120s
 
       - name: Screenshot test
         uses: swinton/screenshot-website@v1.x
         with:
-          source: http://localhost:8081/admin-dev/
+          source: http://localhost:8081/
           destination: screenshot.png
       - uses: actions/upload-artifact@v2
         with:
