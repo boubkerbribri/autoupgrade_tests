@@ -62,3 +62,7 @@ jobs:
           DOWNLOAD_PATH: nightly-build
           ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
         run: npm run test
+      - uses: actions/upload-artifact@v2
+        with:
+          name: my-artifact
+          path: ./screen.png
