@@ -42,7 +42,8 @@ jobs:
           PS_VERSION: ${{ matrix.ps_version_from.to_download }}
         shell: bash
         run : |
-          mkdir -p /var/www/html && chmod 777 -R /var/www/html
+          export UID=$(id -u)
+          export GID=$(id -g)
           docker-compose -f docker-compose.yml up -d
       - name: Wait for prestashop to be ready
         uses: juliangruber/sleep-action@v1
