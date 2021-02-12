@@ -13,7 +13,7 @@ services:
       dockerfile: .docker/Dockerfile
       args:
         - PS_VERSION=$PS_VERSION
-    user: $UID:$GID
+    user: $uid:$gid
     container_name: ps_web
     env_file: .env
     volumes:
