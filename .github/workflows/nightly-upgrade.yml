@@ -47,7 +47,7 @@ jobs:
         with:
           time: 60s
 
-       Run tests
+      # Run tests
       - name: Setup Node
         uses: actions/setup-node@v2
         with:
