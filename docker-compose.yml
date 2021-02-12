@@ -4,12 +4,10 @@ services:
 
   ps_db:
     image: mysql:5.7
-    network_mode: host
     container_name: ps_db
     env_file: .env
 
   ps_web:
-    network_mode: host
     build:
       context: ./
       dockerfile: .docker/Dockerfile
@@ -21,3 +19,6 @@ services:
       - /var/www/html:/var/www/html
     ports:
       - 80:80
+
+networks:
+  ps-net:
