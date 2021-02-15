@@ -17,6 +17,7 @@ services:
     env_file: .env
     volumes:
       - ./public:/var/www/html:rw
+      - ./public/modules/autoupgrade/download:/var/www/html/modules/autoupgrade/download:rw
     ports:
       - 80:80
 
