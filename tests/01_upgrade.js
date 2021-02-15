@@ -3,7 +3,6 @@ require('@root/globals.js');
 
 const {expect} = require('chai');
 const helper = require('prestashop_test_lib/kernel/utils/helpers');
-const filesHelper = require('@root/utils/filesHelper.js');
 
 // Get resolver
 const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/versionSelectResolver');
@@ -16,7 +15,6 @@ const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_UPG
 // Import pages
 const loginPage = versionSelectResolver.require('BO/login/index.js');
 const dashboardPage = versionSelectResolver.require('BO/dashboard/index.js');
-const moduleCatalogPage = versionSelectResolver.require('BO/modules/moduleCatalog/index.js');
 const moduleManagerPage = versionSelectResolver.require('BO/modules/moduleManager/index.js');
 const upgradeModulePage = versionSelectResolver.require('BO/modules/autoupgrade/index.js');
 const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
@@ -25,7 +23,7 @@ const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
 let browserContext;
 let page;
 
-const moduleToInstall = {
+const moduleData = {
   name: '1-Click Upgrade',
   tag: 'autoupgrade',
   downloadFolder: `modules/autoupgrade/download`,
@@ -34,8 +32,6 @@ const moduleToInstall = {
 /*
 Go to login page
 Check PS version
-Log in
-Install 1-Click Upgrade module
 Upgrade
 Log out
 Check new version
@@ -72,68 +68,22 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
     await expect(pageTitle).to.contains(dashboardPage.pageTitle);
   });
 
-  if (global.PS_VERSION.includes('1.7.4')) {
-    it('should go to Modules & Services page', async () => {
-      await dashboardPage.goToSubMenu(
+  it('should go to modules manager page', async () => {
+    await dashboardPage.goToSubMenu(
         page,
         dashboardPage.modulesParentLink,
         dashboardPage.moduleManagerLink,
-      );
+    );
 
-      const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
-    });
-
-    it('should go to Selection tab', async () => {
-      await moduleManagerPage.goToSelectionPage(page);
-
-      const pageTitle = await moduleCatalogPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleCatalogPage.pageTitle);
-    });
-  } else {
-    it('should go to Modules Catalog page', async () => {
-      await dashboardPage.goToSubMenu(
-        page,
-        dashboardPage.modulesParentLink,
-        dashboardPage.moduleCatalogueLink,
-      );
-
-      const pageTitle = await moduleCatalogPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleCatalogPage.pageTitle);
-    });
-  }
-
-  it('should search 1-Click Upgrade module', async () => {
-    const isModuleVisible = await moduleCatalogPage.searchModule(page, moduleToInstall.tag, moduleToInstall.name);
-
-    await expect(isModuleVisible).to.be.true;
-  });
-
-  it('should install 1-Click Upgrade module', async () => {
-    const textResult = await moduleCatalogPage.installModule(page, moduleToInstall.name);
-
-    await expect(textResult).to.contain(moduleCatalogPage.installMessageSuccessful(moduleToInstall.tag));
+    const pageTitle = await moduleManagerPage.getPageTitle(page);
+    await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
   });
 
   it('should go to module configuration page', async () => {
-    await moduleCatalogPage.goToConfigurationPage(page, moduleToInstall.name);
+    await moduleManagerPage.goToConfigurationPage(page, moduleData.name);
 
     const pageTitle = await upgradeModulePage.getPageTitle(page);
     await expect(pageTitle).to.contains(upgradeModulePage.pageTitle);
-  });
-
-  it('should copy the new Zip to the auto upgrade directory', async () => {
-    await filesHelper.createDirectory(`${global.PS_FOLDER.PATH}/${moduleToInstall.downloadFolder}/`);
-    await filesHelper.moveFile(
-      `${global.DOWNLOAD_PATH}/${global.ZIP_NAME}`,
-      `${global.PS_FOLDER.PATH}/${moduleToInstall.downloadFolder}/${global.ZIP_NAME}`,
-    );
-
-    const doesUpgradeFileExist = await filesHelper.doesFileExist(
-      `${global.PS_FOLDER.PATH}/${moduleToInstall.downloadFolder}/${global.ZIP_NAME}`,
-    );
-
-    await expect(doesUpgradeFileExist, 'File was not moved correctly').to.be.true;
   });
 
   it('should fill \'Expert mode\' form', async () => {

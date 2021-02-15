@@ -16,8 +16,7 @@ services:
     container_name: ps_web
     env_file: .env
     volumes:
-      - ./public:/var/www/html:rw
-      - ./public/modules/autoupgrade/download:/var/www/html/modules/autoupgrade/download:rw
+      - ./nightly-build:nightly-build
     ports:
       - 80:80
 

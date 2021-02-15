@@ -6,9 +6,25 @@ ARG PS_VERSION
 # Get PrestaShop
 ADD https://www.prestashop.com/download/old/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
 
-# Extract
+# Get Autoupgrade module
+ADD https://api-addons.prestashop.com/?method=module&id_module=5496 /tmp/autoupgrade.zip
+
+# Extract PS
 RUN mkdir -p /tmp/data-ps \
 	&& unzip -q /tmp/prestashop.zip -d /tmp/data-ps/ \
 	&& bash /tmp/ps-extractor.sh /tmp/data-ps \
-	&& chmod 777 -R /var/www/html \
 	&& rm /tmp/prestashop.zip
+
+# Extract Autoupgrade module
+RUN unzip -q /tmp/autoupgrade.zip -d /var/www/html/modules/ \
+	&& rm /tmp/autoupgrade.zip
+
+# Install module
+RUN /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
+
+# Copy nightly zip to module folder
+RUN mkdir -p /var/www/html/modules/autoupgrade/download \
+    && cp ./nightly-build/* /var/www/html/modules/autoupgrade/download/*
+
+# Give permissions
+RUN chmod 777 -R /var/www/html

@@ -7,6 +7,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       nightly-storage: https://storage.googleapis.com/prestashop-core-nightly
+      api-addons: https://api-addons.prestashop.com
+      id-module: 5496
 
     strategy:
       matrix:
@@ -29,23 +31,23 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Create autoupgrade download folder
-        run: |
-          mkdir -p ./public/modules/autoupgrade/download
-          chmod 777 -R ./public
       - uses: actions/checkout@v2
+
       - name: Get today date
         run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
+
       - uses: suisei-cn/actions-download-file@v1
         name: Download nightly file
         with:
           url: ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
           target: "nightly-build/"
+
       - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
         env:
           PS_VERSION: ${{ matrix.ps_version_from.to_download }}
         shell: bash
         run : docker-compose -f docker-compose.yml up -d
+
       - name: Wait for prestashop to be ready
         uses: juliangruber/sleep-action@v1
         with:
