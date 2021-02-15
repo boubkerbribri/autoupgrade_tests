@@ -123,6 +123,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
   });
 
   it('should copy the new Zip to the auto upgrade directory', async () => {
+    await filesHelper.createDirectory(global.DOWNLOAD_PATH);
     await filesHelper.moveFile(
       `${global.DOWNLOAD_PATH}/${global.ZIP_NAME}`,
       `${global.PS_FOLDER.PATH}/${moduleToInstall.downloadFolder}/${global.ZIP_NAME}`,

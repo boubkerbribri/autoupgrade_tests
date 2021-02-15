@@ -29,4 +29,13 @@ module.exports = {
 
     return found;
   },
+
+  /**
+   * Create directory if not exist
+   * @param path
+   * @return {Promise<void>}
+   */
+    async createDirectory(path) {
+    if (!fs.existsSync(path)) await fs.mkdirSync(path);
+  },
 };
