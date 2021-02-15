@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Create autoupgrade download folder
         run: |
-          mkdir -p ./public/modules/autoupgrade/download
+          mkdir -p ./public
           chmod 777 -R ./public
       - uses: actions/checkout@v2
       - name: Get today date
