@@ -154,7 +154,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
         const textResult = await upgradeModulePage.getRowImageContent(page, i);
         await expect(textResult).to.equal('ok');
       }
-    } catch(e) {
+    } catch (e) {
       await page.screenshot({path: './screen.png', fullPage: true});
       throw e;
     }

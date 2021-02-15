@@ -29,6 +29,10 @@ jobs:
       fail-fast: false
 
     steps:
+      - name: Create PrestaShop folder
+        run: |
+          mkdir -p ./public
+          chmod 777 -R ./public
       - uses: actions/checkout@v2
       - name: Get today date
         run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
@@ -46,8 +50,6 @@ jobs:
         uses: juliangruber/sleep-action@v1
         with:
           time: 60s
-      - name: Give permissions
-        run: chmod 777 -R /var/www/html
 
       # Run tests
       - name: Setup Node
@@ -62,6 +64,7 @@ jobs:
           PS_VERSION: ${{ matrix.ps_version_from.for_test }}
           PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
           DOWNLOAD_PATH: "./nightly-build"
+          PROJECT_PATH: "./public"
           ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
         run: npm run test
       - uses: actions/upload-artifact@v2
