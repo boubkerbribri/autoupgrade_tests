@@ -19,12 +19,5 @@ RUN mkdir -p /tmp/data-ps \
 RUN unzip -q /tmp/autoupgrade.zip -d /var/www/html/modules/ \
 	&& rm /tmp/autoupgrade.zip
 
-# Install module
-RUN /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
-
-# Copy nightly zip to module folder
-RUN mkdir -p /var/www/html/modules/autoupgrade/download \
-    && cp ./nightly-build/* /var/www/html/modules/autoupgrade/download/*
-
 # Give permissions
 RUN chmod 777 -R /var/www/html

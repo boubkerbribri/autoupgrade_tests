@@ -53,6 +53,13 @@ jobs:
         with:
           time: 60s
 
+      - name: Install autoupgrade module
+        run: |
+          docker ps
+          docker exec -it ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
+          docker exec -it ps_web mkdir -p /var/www/html/modules/autoupgrade/download
+          docker exec -it ps_web cp ./nightly-build/* /var/www/html/modules/autoupgrade/download/*
+
       # Run tests
       - name: Setup Node
         uses: actions/setup-node@v2
