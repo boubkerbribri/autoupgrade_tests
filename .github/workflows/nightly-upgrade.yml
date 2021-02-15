@@ -70,11 +70,7 @@ jobs:
       - name: check autoupgrade file
         if: ${{ always() }}
         run : |
-          ls ./public/
-          ls ./public/modules/
-          ls ./public/modules/autoupgrade/download/
-          ls ./public/modules/autoupgrade/download/
-          ls ./nightly-build/
+          ls ./public/modules/autoupgrade/
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
