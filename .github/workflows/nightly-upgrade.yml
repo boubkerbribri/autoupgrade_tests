@@ -29,9 +29,9 @@ jobs:
       fail-fast: false
 
     steps:
-      - name: Create PrestaShop folder
+      - name: Create autoupgrade download folder
         run: |
-          mkdir -p ./public
+          mkdir -p ./public/modules/autoupgrade/download
           chmod 777 -R ./public
       - uses: actions/checkout@v2
       - name: Get today date

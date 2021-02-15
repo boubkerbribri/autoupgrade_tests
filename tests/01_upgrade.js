@@ -28,7 +28,7 @@ let page;
 const moduleToInstall = {
   name: '1-Click Upgrade',
   tag: 'autoupgrade',
-  downloadFolder: `${global.PS_FOLDER.ADMIN}/autoupgrade/download`,
+  downloadFolder: `${global.PS_FOLDER.ADMIN}/modules/autoupgrade/download`,
 };
 
 /*
