@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Create autoupgrade download folder
         run: |
-          mkdir -p ./public
+          mkdir -p ./public/modules/autoupgrade/download
           chmod 777 -R ./public
       - uses: actions/checkout@v2
       - name: Get today date
@@ -67,6 +67,14 @@ jobs:
           PROJECT_PATH: "./public"
           ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
         run: npm run test
+      - name: check autoupgrade file
+        if: ${{ always() }}
+        run : |
+          ls ./public/
+          ls ./public/modules/
+          ls ./public/modules/autoupgrade/download/
+          ls ./public/modules/autoupgrade/download/
+          ls ./nightly-build/
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
