@@ -31,7 +31,7 @@ jobs:
     steps:
       - name: Create autoupgrade download folder
         run: |
-          mkdir -p ./public/modules/autoupgrade/download
+          mkdir -p ./public
           chmod 777 -R ./public
       - uses: actions/checkout@v2
       - name: Get today date
@@ -40,7 +40,7 @@ jobs:
         name: Download nightly file
         with:
           url: ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          target: nightly-build/
+          target: "nightly-build/"
       - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
         env:
           PS_VERSION: ${{ matrix.ps_version_from.to_download }}

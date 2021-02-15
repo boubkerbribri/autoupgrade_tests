@@ -16,7 +16,7 @@ services:
     container_name: ps_web
     env_file: .env
     volumes:
-      - ./public:/var/www/html
+      - ./public:/var/www/html:rw
     ports:
       - 80:80
 
