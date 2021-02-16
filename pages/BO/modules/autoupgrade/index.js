@@ -96,6 +96,7 @@ class Upgrade extends ModuleConfigurationPage.constructor {
       return this.getTextContent(page, this.alertSuccess);
     }
 
+    await page.screenshot({path: './screen.png', fullPage: true});
     throw new Error(`Upgrade is not complete after ${timeDelay / 1000}sec`);
   }
 
