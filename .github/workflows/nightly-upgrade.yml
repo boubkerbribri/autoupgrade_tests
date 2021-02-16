@@ -61,7 +61,7 @@ jobs:
           docker exec -u www-data ps_web cp \
             /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
             /var/www/html/modules/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          docker exec -u www-data ps-web ls /var/www/html/modules/autoupgrade/download
+          docker exec -u www-data ps_web ls /var/www/html/modules/autoupgrade/download
 
       # Run tests
       - name: Setup Node
