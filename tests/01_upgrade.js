@@ -88,14 +88,19 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
   });
 
   it('should fill \'Expert mode\' form', async () => {
-    const textResult = await upgradeModulePage.fillExpertModeForm(
-      page,
-      'Local archive',
-      global.ZIP_NAME,
-      global.PS_VERSION_UPGRADE_TO,
-    );
+    try {
+      const textResult = await upgradeModulePage.fillExpertModeForm(
+          page,
+          'Local archive',
+          global.ZIP_NAME,
+          global.PS_VERSION_UPGRADE_TO,
+      );
 
-    await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
+      await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
+    } catch (e) {
+      await page.screenshot({path: './screen.png', fullPage: true});
+      throw e;
+    }
   });
 
   it('should put the shop under maintenance and check if the checklist is all green', async () => {
