@@ -11,7 +11,7 @@ ADD https://api-addons.prestashop.com/?method=module&id_module=5496 /tmp/autoupg
 
 # Install php zip
 RUN apt-get update -y \
-    && apt-get install -y libzip-dev zip php7.1-zip \
+    && apt-get install -y libzip-dev \
     && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install zip
 
