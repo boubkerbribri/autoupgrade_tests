@@ -16,7 +16,7 @@ RUN mkdir -p /tmp/data-ps \
 	&& rm /tmp/prestashop.zip
 
 # Create defines_custom.inc.php
-RUN echo "<?php define('_PS_ADMIN_DIR_', 'admin-dev');" > /var/www/html/config/defines_custom.inc.php
+RUN echo "define('_PS_ADMIN_DIR_', 'admin-dev');" >> /var/www/html/config/defines_custom.inc.php
 
 # Extract Autoupgrade module
 RUN unzip -q /tmp/autoupgrade.zip -d /var/www/html/modules/ \
