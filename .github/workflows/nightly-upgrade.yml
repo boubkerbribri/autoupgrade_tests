@@ -15,12 +15,12 @@ jobs:
         ps_version_from:
           - to_download: 1.7.4.4
             for_test: 1.7.4
-          - to_download: 1.7.5.2
-            for_test: 1.7.5
-          - to_download: 1.7.6.9
-            for_test: 1.7.6
-          - to_download: 1.7.7.1
-            for_test: 1.7.7
+          #- to_download: 1.7.5.2
+           # for_test: 1.7.5
+          #- to_download: 1.7.6.9
+           # for_test: 1.7.6
+          #- to_download: 1.7.7.1
+           # for_test: 1.7.7
 
         ps_version_to:
           - for_test: 1.7.7
@@ -56,9 +56,9 @@ jobs:
       - name: Install autoupgrade module
         shell: bash
         run: |
-          docker exec -u www-data ps_web cp modules/autoupgrade/ -R admin-dev
+          docker exec -u www-data ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
           docker exec -u www-data ps_web mkdir -p /var/www/html/modules/autoupgrade/download
-          docker exec -u www-data ps_web cp /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
+          docker exec -u www-data ps_web cp -R /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
             /var/www/html/modules/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
 
       # Run tests

@@ -80,6 +80,7 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
   });
 
   it('should go to module configuration page', async () => {
+    await moduleManagerPage.searchModule(page, moduleData.tag, moduleData.name);
     await moduleManagerPage.goToConfigurationPage(page, moduleData.name);
 
     const pageTitle = await upgradeModulePage.getPageTitle(page);
