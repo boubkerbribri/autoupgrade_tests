@@ -10,9 +10,9 @@ ADD https://www.prestashop.com/download/old/prestashop_${PS_VERSION}.zip /tmp/pr
 ADD https://api-addons.prestashop.com/?method=module&id_module=5496 /tmp/autoupgrade.zip
 
 # Install php zip
-RUN sudo add-apt-repository universe \
-    && sudo apt update \
-    && sudo apt install php7.1-zip
+RUN add-apt-repository universe \
+    && apt update \
+    && apt install php7.1-zip
 
 # Extract PS
 RUN mkdir -p /tmp/data-ps \
