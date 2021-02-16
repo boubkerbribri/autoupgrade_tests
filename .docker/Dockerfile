@@ -10,7 +10,8 @@ ADD https://www.prestashop.com/download/old/prestashop_${PS_VERSION}.zip /tmp/pr
 ADD https://api-addons.prestashop.com/?method=module&id_module=5496 /tmp/autoupgrade.zip
 
 # Install php zip
-RUN apt-get update -y \
+RUN add-apt-repository ppa:ondrej/php \
+    && apt-get update -y \
     && apt-get install -y libzip-dev php7.1-zip \
     && docker-php-ext-configure zip --with-libzip \
     && docker-php-ext-install zip
