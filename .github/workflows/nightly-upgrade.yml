@@ -61,10 +61,10 @@ jobs:
 
       - name: DEBUG zip
         run: |
-          docker exec -u www-data ps_web mdkir -p /tmp/data-test/
+          docker exec -u www-data ps_web mkdir -p /tmp/data-test/
           docker exec -u www-data ps_web unzip -q /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} -d /tmp/data-test/
           docker exec -u www-data ps_web ls /tmp/data-test/
-          docker exec -u www-data ps_web mdkir -p /tmp/data-test/prestashop/
+          docker exec -u www-data ps_web mkdir -p /tmp/data-test/prestashop/
           docker exec -u www-data ps_web unzip -q /tmp/data-test/prestashop.zip -d /tmp/data-test/prestashop/
           docker exec -u www-data ps_web ls /tmp/data-test/prestashop/
 
