@@ -36,11 +36,12 @@ jobs:
       - name: Get today date
         run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
 
-      - uses: suisei-cn/actions-download-file@v1
-        name: Download nightly file
-        with:
-          url: ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          target: "nightly-build/"
+      - name: Download nightly build
+        run: |
+          mkdir -p ./nightly-build
+          curl ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
+               -o ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          ls ./nightly-build
 
       - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
         env:
@@ -69,7 +70,6 @@ jobs:
           docker exec -u www-data ps_web ls /tmp/data-test/prestashop/
 
       - name: Copy nightly build to /var/www/html/admin-dev/autoupgrade/download folder
-        if: ${{ failure() }}
         run: |
           docker exec -u www-data ps_web cp \
             /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
@@ -77,15 +77,14 @@ jobs:
 
       # Run tests
       - name: Setup Node
-        if: ${{ failure() }}
         uses: actions/setup-node@v2
         with:
           node-version: 10
+
       - name: Install dependencies
-        if: ${{ failure() }}
         run: npm install
+
       - name: Run tests
-        if: ${{ failure() }}
         env:
           URL_FO: "http://localhost/"
           PS_VERSION: ${{ matrix.ps_version_from.for_test }}
@@ -94,6 +93,7 @@ jobs:
           PROJECT_PATH: "./public"
           ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
         run: npm run test
+
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
