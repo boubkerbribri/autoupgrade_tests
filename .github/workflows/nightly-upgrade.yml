@@ -12,15 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        ps_version_from:
-          - to_download: 1.7.4.4
-            for_test: 1.7.4.4
-          - to_download: 1.7.5.2
-            for_test: 1.7.5.2
-          - to_download: 1.7.6.9
-            for_test: 1.7.6.9
-          - to_download: 1.7.7.1
-            for_test: 1.7.7.1
+        ps_version_from: ["1.7.4.4", "1.7.5.2", "1.7.6.9", "1.7.7.1"]
 
         ps_version_to:
           - for_test: 1.7.7.2
@@ -42,9 +34,9 @@ jobs:
           url: ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
           target: "nightly-build/"
 
-      - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
+      - name: Build PrestaShop ${{ matrix.ps_version_from }} on docker
         env:
-          PS_VERSION: ${{ matrix.ps_version_from.to_download }}
+          PS_VERSION: ${{ matrix.ps_version_from }}
         shell: bash
         run : docker-compose -f docker-compose.yml up -d
 
@@ -77,7 +69,7 @@ jobs:
       - name: Run tests
         env:
           URL_FO: "http://localhost/"
-          PS_VERSION: ${{ matrix.ps_version_from.for_test }}
+          PS_VERSION: ${{ matrix.ps_version_from }}
           PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
           DOWNLOAD_PATH: "./nightly-build"
           ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}

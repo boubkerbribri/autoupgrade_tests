@@ -3,7 +3,7 @@ const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/vers
 
 const configClassMap = require('@root/configClassMap.js');
 
-const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
+const versionSelectResolver = new VersionSelectResolver(global.PS_RESOLVER_VERSION.FROM, configClassMap);
 
 // Import BOBasePage
 const ModuleConfigurationPage = versionSelectResolver.require('BO/modules/moduleConfiguration/index.js');
