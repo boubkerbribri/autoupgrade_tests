@@ -14,11 +14,11 @@ jobs:
       matrix:
         ps_version_from:
           - to_download: 1.7.4.4
-            for_test: 1.7.4
+            for_test: 1.7.4.4
           - to_download: 1.7.5.2
-            for_test: 1.7.5
+            for_test: 1.7.5.2
           - to_download: 1.7.6.9
-            for_test: 1.7.6
+            for_test: 1.7.6.9
           - to_download: 1.7.7.1
             for_test: 1.7.7.1
 
