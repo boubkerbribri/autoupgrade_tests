@@ -9,8 +9,8 @@ const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/vers
 
 const configClassMap = require('@root/configClassMap.js');
 
-const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
-const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_UPGRADE_TO, configClassMap);
+const versionSelectResolver = new VersionSelectResolver(global.PS_RESOLVER_VERSION.FROM, configClassMap);
+const newVersionSelectResolver = new VersionSelectResolver(global.PS_RESOLVER_VERSION.TO, configClassMap);
 
 // Import pages
 const loginPage = versionSelectResolver.require('BO/login/index.js');
@@ -38,8 +38,7 @@ Upgrade
 Log out
 Check new version
  */
-describe(`Upgrade PrestaShop from last official release of '${global.PS_VERSION}' `
-    + `to nightly build of '${global.PS_VERSION_UPGRADE_TO}'`, async () => {
+describe(`Upgrade PrestaShop from '${global.PS_VERSION}' to '${global.PS_VERSION_UPGRADE_TO}'`, async () => {
   // before and after functions
   before(async function () {
     browserContext = await helper.createBrowserContext(this.browser);
@@ -51,8 +50,10 @@ describe(`Upgrade PrestaShop from last official release of '${global.PS_VERSION}
     await helper.closeBrowserContext(browserContext);
   });
 
-  afterEach(async () => {
-    await page.screenshot({path: `./screenshots/failed-step-${failedStepNumber}.png`, fullPage: true});
+  afterEach(async function () {
+    if (this.currentTest.state === 'failed') {
+      await page.screenshot({path: `./screenshots/failed-step-${failedStepNumber}.png`, fullPage: true});
+    }
   });
 
   it('should go to login page', async () => {
