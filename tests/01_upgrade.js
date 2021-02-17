@@ -38,7 +38,8 @@ Upgrade
 Log out
 Check new version
  */
-describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSION_UPGRADE_TO}'`, async () => {
+describe(`Upgrade PrestaShop from last official release of '${global.PS_VERSION}' `
+    + `to nightly build of '${global.PS_VERSION_UPGRADE_TO}'`, async () => {
   // before and after functions
   before(async function () {
     browserContext = await helper.createBrowserContext(this.browser);
