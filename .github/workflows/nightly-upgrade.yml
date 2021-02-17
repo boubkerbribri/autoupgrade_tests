@@ -58,19 +58,34 @@ jobs:
         run: |
           docker exec -u www-data ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
           docker exec -u www-data ps_web mkdir -p /var/www/html/admin-dev/autoupgrade/download
+
+      - name: DEBUG zip
+        run: |
+          docker exec -u www-data ps_web mdkir -p /tmp/data-test/
+          docker exec -u www-data ps_web unzip -q /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} -d /tmp/data-test/
+          docker exec -u www-data ps_web ls /tmp/data-test/
+          docker exec -u www-data ps_web mdkir -p /tmp/data-test/prestashop/
+          docker exec -u www-data ps_web unzip -q /tmp/data-test/prestashop.zip -d /tmp/data-test/prestashop/
+          docker exec -u www-data ps_web ls /tmp/data-test/prestashop/
+
+      - name: Copy nightly build to /var/www/html/admin-dev/autoupgrade/download folder
+        if: ${{ failure() }}
+        run: |
           docker exec -u www-data ps_web cp \
             /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
             /var/www/html/admin-dev/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          docker exec -u www-data ps_web chmod 777 -R /var/www/html/admin-dev/autoupgrade/download
 
       # Run tests
       - name: Setup Node
+        if: ${{ failure() }}
         uses: actions/setup-node@v2
         with:
           node-version: 10
       - name: Install dependencies
+        if: ${{ failure() }}
         run: npm install
       - name: Run tests
+        if: ${{ failure() }}
         env:
           URL_FO: "http://localhost/"
           PS_VERSION: ${{ matrix.ps_version_from.for_test }}
