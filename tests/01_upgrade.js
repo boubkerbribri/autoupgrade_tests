@@ -26,7 +26,7 @@ let page;
 const moduleData = {
   name: '1-Click Upgrade',
   tag: 'autoupgrade',
-  downloadFolder: `modules/autoupgrade/download`,
+  downloadFolder: 'modules/autoupgrade/download',
 };
 
 /*
@@ -70,9 +70,9 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   it('should go to modules manager page', async () => {
     await dashboardPage.goToSubMenu(
-        page,
-        dashboardPage.modulesParentLink,
-        dashboardPage.moduleManagerLink,
+      page,
+      dashboardPage.modulesParentLink,
+      dashboardPage.moduleManagerLink,
     );
 
     const pageTitle = await moduleManagerPage.getPageTitle(page);
@@ -89,10 +89,10 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   it('should fill \'Expert mode\' form', async () => {
     const textResult = await upgradeModulePage.fillExpertModeForm(
-        page,
-        'Local archive',
-        global.ZIP_NAME,
-        global.PS_VERSION_UPGRADE_TO,
+      page,
+      'Local archive',
+      global.ZIP_NAME,
+      global.PS_VERSION_UPGRADE_TO,
     );
 
     await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
