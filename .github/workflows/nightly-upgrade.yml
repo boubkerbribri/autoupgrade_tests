@@ -41,7 +41,8 @@ jobs:
           mkdir -p ./nightly-build
           curl ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
                -o ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          ls ./nightly-build
+          file ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          zip -FF ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} --out ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
 
       - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
         env:
