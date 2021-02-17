@@ -24,9 +24,9 @@ jobs:
 
         ps_version_to:
           - for_test: 1.7.7
-            filename: 1.7.7.x-prestashop-1.7.7.2.zip
+            filename: 1.7.7.x-prestashop_1.7.7.2.zip
           - for_test: 1.7.8
-            filename: develop-prestashop-1.7.8.0.zip
+            filename: develop-prestashop_1.7.8.0.zip
 
       fail-fast: false
 
@@ -36,12 +36,11 @@ jobs:
       - name: Get today date
         run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
 
-      - name: Download nightly build
-        run: |
-          mkdir -p ./nightly-build
-          wget -P ./nightly-build ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          file ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
-          cat ./nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+      - uses: suisei-cn/actions-download-file@v1
+        name: Download nightly zip
+        with:
+          url: ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          target: "nightly-build/"
 
       - name: Build PrestaShop ${{ matrix.ps_version_from.to_download }} on docker
         env:
@@ -59,15 +58,6 @@ jobs:
         run: |
           docker exec -u www-data ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
           docker exec -u www-data ps_web mkdir -p /var/www/html/admin-dev/autoupgrade/download
-
-      - name: DEBUG zip
-        run: |
-          docker exec -u www-data ps_web mkdir -p /tmp/data-test/
-          docker exec -u www-data ps_web unzip -q /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} -d /tmp/data-test/
-          docker exec -u www-data ps_web ls /tmp/data-test/
-          docker exec -u www-data ps_web mkdir -p /tmp/data-test/prestashop/
-          docker exec -u www-data ps_web unzip -q /tmp/data-test/prestashop.zip -d /tmp/data-test/prestashop/
-          docker exec -u www-data ps_web ls /tmp/data-test/prestashop/
 
       - name: Copy nightly build to /var/www/html/admin-dev/autoupgrade/download folder
         run: |
