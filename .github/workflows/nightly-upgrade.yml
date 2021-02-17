@@ -56,9 +56,9 @@ jobs:
       - name: Install autoupgrade module
         shell: bash
         run: |
-          docker exec -u www-data ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
-          docker exec -u www-data ps_web mkdir -p /var/www/html/admin-dev/autoupgrade/download
-          docker exec -u www-data ps_web cp \
+          docker exec ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
+          docker exec ps_web mkdir -p /var/www/html/admin-dev/autoupgrade/download
+          docker exec ps_web cp \
             /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
             /var/www/html/admin-dev/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
 
