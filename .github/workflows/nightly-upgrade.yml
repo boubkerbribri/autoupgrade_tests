@@ -79,4 +79,4 @@ jobs:
         if: ${{ always() }}
         with:
           name: failed-steps-screenshots
-          path: ./screenshots
+          path: ./screenshots/
