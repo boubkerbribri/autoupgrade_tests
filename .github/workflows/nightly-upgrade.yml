@@ -97,6 +97,7 @@ jobs:
 
   # Second job: merge reports (depends on upgrade job)
   merge-reports:
+
     name: Combine all tests reports
     needs: upgrade
     if: ${{ always() }}
@@ -107,6 +108,8 @@ jobs:
       combined_report_name: upgrade_tests.json
 
     steps:
+      - uses: actions/checkout@v2
+
       - uses: actions/download-artifact@v2
         name: Download reports
         with:
