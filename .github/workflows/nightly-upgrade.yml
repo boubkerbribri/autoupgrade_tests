@@ -84,7 +84,7 @@ jobs:
         if: ${{ always() }}
         run: cp ./mochawesome-reports/mochawesome.json ./mochawesome-reports/upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}
 
-      - uses: actions/upload-artifacts@v2
+      - uses: actions/upload-artifact@v2
         name: Upload Mochawesome report
         if: ${{ always() }}
         with:

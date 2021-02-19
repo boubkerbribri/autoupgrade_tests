@@ -54,7 +54,6 @@ describe(`Upgrade PrestaShop from '${global.PS_VERSION}' to '${global.PS_VERSION
     if (this.currentTest.state === 'failed') {
       await page.screenshot({path: `./screenshots/failed-step-${failedStepNumber}.png`, fullPage: true});
       failedStepNumber += 1;
-      console.log('here');
     }
   });
 
