@@ -99,6 +99,7 @@ jobs:
   merge-reports:
     name: Combine all tests reports
     needs: upgrade
+    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     env:
