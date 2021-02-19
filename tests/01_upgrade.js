@@ -23,7 +23,7 @@ const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
 let browserContext;
 let page;
 
-const failedStepNumber = 1;
+let failedStepNumber = 1;
 
 const moduleData = {
   name: '1-Click Upgrade',
@@ -53,6 +53,8 @@ describe(`Upgrade PrestaShop from '${global.PS_VERSION}' to '${global.PS_VERSION
   afterEach(async function () {
     if (this.currentTest.state === 'failed') {
       await page.screenshot({path: `./screenshots/failed-step-${failedStepNumber}.png`, fullPage: true});
+      failedStepNumber += 1;
+      console.log('here');
     }
   });
 

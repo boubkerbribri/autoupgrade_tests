@@ -78,5 +78,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: failed-steps-screenshots
+          name: failed-steps
           path: ./screenshots/
