@@ -38,12 +38,9 @@ jobs:
         env:
           PS_VERSION: ${{ matrix.ps_version_from }}
         shell: bash
-        run : docker-compose -f docker-compose.yml up -d
-
-      - name: Wait for prestashop to be ready
-        uses: juliangruber/sleep-action@v1
-        with:
-          time: 60s
+        run : |
+          docker-compose -f docker-compose.yml up -d
+          bash -c 'while [[ "$(curl -L -s -o /dev/null -w %{http_code} http://localhost/fr)" != "200" ]]; do sleep 5; done'
 
       - name: Install autoupgrade module
         shell: bash
@@ -78,5 +75,5 @@ jobs:
       - uses: actions/upload-artifact@v2
         if: ${{ always() }}
         with:
-          name: failed-steps
+          name: failed-steps-for-test-${{ matrix.ps_version_from }}-${{ matrix.ps_version_to.for_test }}
           path: ./screenshots/
