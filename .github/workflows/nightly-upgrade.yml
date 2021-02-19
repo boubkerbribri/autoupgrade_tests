@@ -7,8 +7,6 @@ jobs:
     runs-on: ubuntu-latest
     env:
       nightly-storage: https://storage.googleapis.com/prestashop-core-nightly
-      api-addons: https://api-addons.prestashop.com
-      id-module: 5496
 
     strategy:
       matrix:
@@ -23,6 +21,8 @@ jobs:
       fail-fast: false
 
     steps:
+
+      # Setup PrestaShop and Install Autoupgrade module
       - uses: actions/checkout@v2
 
       - name: Get today date
@@ -73,7 +73,20 @@ jobs:
         run: npm run test
 
       - uses: actions/upload-artifact@v2
+        name: Upload failed screenshots
         if: ${{ always() }}
         with:
           name: failed-steps-for-test-${{ matrix.ps_version_from }}-${{ matrix.ps_version_to.for_test }}
           path: ./screenshots/
+
+      # Upload Mochawesome reports
+      - name: Rename Mochawesome report
+        if: ${{ always() }}
+        run: cp ./mochawesome-reports/mochawesome.json ./mochawesome-reports/upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}
+
+      - uses: actions/upload-artifacts@v2
+        name: Upload Mochawesome report
+        if: ${{ always() }}
+        with:
+          name: upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}
+          path: ./mochawesome-reports
