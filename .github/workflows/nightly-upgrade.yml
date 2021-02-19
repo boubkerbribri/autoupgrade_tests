@@ -3,11 +3,12 @@ name: Nightly upgrades
 on: [push, pull_request]
 
 jobs:
+  # First job: upgrade
   upgrade:
     name: Testing Autoupgrade module on UI
     runs-on: ubuntu-latest
     env:
-      nightly-storage: https://storage.googleapis.com/prestashop-core-nightly
+      nightly_storage: https://storage.googleapis.com/prestashop-core-nightly
 
     strategy:
       matrix:
@@ -32,7 +33,7 @@ jobs:
       - uses: suisei-cn/actions-download-file@v1
         name: Download nightly zip
         with:
-          url: ${{ env.nightly-storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          url: ${{ env.nightly_storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
           target: "nightly-build/"
 
       - name: Build PrestaShop ${{ matrix.ps_version_from }} on docker
@@ -93,3 +94,35 @@ jobs:
         with:
           name: tests-reports
           path: ./json-reports
+
+  # Second job: merge reports (depends on upgrade job)
+  merge-reports:
+    name: Combine all tests reports
+    needs: upgrade
+    runs-on: ubuntu-latest
+
+    env:
+      report_path: ./json-reports
+      combined_report_name: upgrade_tests.json
+
+    steps:
+      - uses: actions/download-artifact@v2
+      name: Download reports
+      with:
+        name: tests-reports
+        path: ./json-reports
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Combine reports
+        shell: bash
+        run: ./scripts/combine-reports.py "${{ env.report_path }}" "${{ env.report_path }}/${{ env.combined_report_name }}"
+
+      - uses: actions/upload-artifact@v2
+        name: Upload combined report
+        with:
+          name: combined-report
+          path: ${{ env.report_path }}/${{ env.combined_report_name }}
