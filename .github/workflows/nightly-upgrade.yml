@@ -120,7 +120,7 @@ jobs:
 
       - name: Combine reports
         shell: bash
-        run: ./github/scripts/combine-reports.py "${{ env.report_path }}" "${{ env.report_path }}/${{ env.combined_report_name }}"
+        run: ./.github/scripts/combine-reports.py "${{ env.report_path }}" "${{ env.report_path }}/${{ env.combined_report_name }}"
 
       - uses: actions/upload-artifact@v2
         name: Upload combined report
