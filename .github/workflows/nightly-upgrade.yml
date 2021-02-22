@@ -114,7 +114,9 @@ jobs:
         name: Download reports
         with:
           name: tests-reports
-          path: ./json-reports
+          path: ${{ report_path }}
+      - run: ls -R
+        working-directory: ${{ report_path }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -123,9 +125,7 @@ jobs:
 
       - name: Combine reports
         shell: bash
-        run: |
-          chmod 777 -R ${{ env.report_path }}
-          ./.github/scripts/combine-reports.py "${{ env.report_path }}" "${{ env.report_path }}/${{ env.combined_report_name }}"
+        run: ./.github/scripts/combine-reports.py "${{ env.report_path }}" "${{ env.report_path }}/${{ env.combined_report_name }}"
 
       - uses: actions/upload-artifact@v2
         name: Upload combined report
