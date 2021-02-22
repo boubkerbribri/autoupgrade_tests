@@ -86,7 +86,7 @@ jobs:
         if: ${{ always() }}
         run: |
           mkdir -p ./json-reports
-          cp ./mochawesome-report/mochawesome.json ./json-reports/upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}
+          cp ./mochawesome-report/mochawesome.json ./json-reports/upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}.json
 
       - uses: actions/upload-artifact@v2
         name: Upload Mochawesome report
