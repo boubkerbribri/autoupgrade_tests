@@ -114,9 +114,9 @@ jobs:
         name: Download reports
         with:
           name: tests-reports
-          path: ${{ report_path }}
+          path: ${{ env.report_path }}
       - run: ls -R
-        working-directory: ${{ report_path }}
+        working-directory: ${{ env.report_path }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
