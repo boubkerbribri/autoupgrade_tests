@@ -165,7 +165,7 @@ jobs:
       - name: Push result to the nightly board
         shell: bash
         run: |
-          export TODAY=`date -u +"%Y-%m-%d"
+          export TODAY=`date -u +"%Y-%m-%d"`
           export FILENAME=autoupgrade_ui_$TODAY.json
           cp ${{ env.combined_report_name }} $FILENAME
           gsutil cp $FILENAME gs://prestashop-core-nightly/reports
