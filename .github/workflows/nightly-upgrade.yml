@@ -97,7 +97,6 @@ jobs:
 
   # Second job: merge reports (depends on upgrade job)
   merge-reports:
-
     name: Combine all tests reports
     needs: upgrade
     if: ${{ always() }}
@@ -115,8 +114,6 @@ jobs:
         with:
           name: tests-reports
           path: ${{ env.report_path }}
-      - run: ls -R
-        working-directory: ${{ env.report_path }}
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -132,3 +129,40 @@ jobs:
         with:
           name: combined-report
           path: ${{ env.report_path }}/${{ env.combined_report_name }}
+
+  # Third job: Push report on GCP (Depends on merge-reports job)
+  upload-report:
+    name: Upload nghtly report
+    runs-on: ubuntu-latest
+    env:
+      nightly_api_url: https://api-nightly.prestashop.com/hook/add
+      campaign: autoupgrade
+      plateform: chromium
+      report_path: ./json-reports
+      combined_report_name: upgrade_tests.json
+
+    steps:
+
+      - uses: actions/download-artifacts@v2
+        name: Download report
+        with:
+          name: combined-report
+          path: ${{ env.report_path }}
+
+      - uses: google-github-actions/setup-gcloud@master
+        name: Setup Cloud Sdk
+        with:
+          project_id: ${{ secrets.GC_PROJECT_ID }}
+          service_account_key: ${{ secrets.GC_SERVICE_KEY }}
+          export_default_credentials: true
+
+      - name: Push result to the nightly board
+        shell: bash
+        run: |
+          export TODAY=`date -u +"%Y-%m-%d"
+          export FILENAME=autoupgrade_ui_$TODAY.json
+          cp ${{ env.combined_report_name }} $FILENAME
+          gsutil cp $FILENAME gs://prestashop-core-nightly/reports
+          curl -X GET "${{ env.nightly_api_url }}?filename=$FILENAME&platform=${{ env.plateform }}&campaign=${{ env.campaign }}&token=${{ secrets.QANB_TOKEN }}"
+
+        working-directory: ${{ env.report_path }}
