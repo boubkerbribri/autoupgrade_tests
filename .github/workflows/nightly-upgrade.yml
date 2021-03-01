@@ -1,6 +1,8 @@
 name: Nightly upgrades
 
-on: [push, pull_request]
+on:
+  schedule:
+    - cron: '0 6 * * *' # Every day at 06:00Am
 
 jobs:
   # First job: upgrade
@@ -130,10 +132,11 @@ jobs:
           name: combined-report
           path: ${{ env.report_path }}/${{ env.combined_report_name }}
 
-  # Third job: Push report on GCP (Depends on merge-reports job)
+  # Third job: Upload report on GCP (Depends on merge-reports job)
   upload-report:
     name: Upload nghtly report
     runs-on: ubuntu-latest
+    needs: merge-reports
     env:
       nightly_api_url: https://api-nightly.prestashop.com/hook/add
       campaign: autoupgrade
