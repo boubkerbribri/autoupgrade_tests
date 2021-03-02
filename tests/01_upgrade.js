@@ -1,5 +1,5 @@
 require('module-alias/register');
-require('../globals.js');
+require('@root/globals.js');
 
 const {expect} = require('chai');
 const helper = require('prestashop_test_lib/kernel/utils/helpers');
@@ -7,38 +7,38 @@ const helper = require('prestashop_test_lib/kernel/utils/helpers');
 // Get resolver
 const VersionSelectResolver = require('prestashop_test_lib/kernel/resolvers/versionSelectResolver');
 
-const configClassMap = require('../configClassMap.js');
+const configClassMap = require('@root/configClassMap.js');
 
-const versionSelectResolver = new VersionSelectResolver(global.PS_VERSION, configClassMap);
-const newVersionSelectResolver = new VersionSelectResolver(global.PS_VERSION_TO_UPGRADE, configClassMap);
+const versionSelectResolver = new VersionSelectResolver(global.PS_RESOLVER_VERSION.FROM, configClassMap);
+const newVersionSelectResolver = new VersionSelectResolver(global.PS_RESOLVER_VERSION.TO, configClassMap);
 
 // Import pages
 const loginPage = versionSelectResolver.require('BO/login/index.js');
 const dashboardPage = versionSelectResolver.require('BO/dashboard/index.js');
-const moduleCatalogPage = versionSelectResolver.require('BO/modules/moduleCatalog.js');
-const moduleManagerPage = versionSelectResolver.require('BO/modules/moduleManager.js');
-const upgradeModulePage = versionSelectResolver.require('BO/modules/upgrade.js');
+const moduleManagerPage = versionSelectResolver.require('BO/modules/moduleManager/index.js');
+const upgradeModulePage = versionSelectResolver.require('BO/modules/autoupgrade/index.js');
 const newLoginPage = newVersionSelectResolver.require('BO/login/index.js');
 
 // Browser vars
 let browserContext;
 let page;
 
-const moduleToInstall = {
+let failedStepNumber = 1;
+
+const moduleData = {
   name: '1-Click Upgrade',
   tag: 'autoupgrade',
+  downloadFolder: 'modules/autoupgrade/download',
 };
 
 /*
 Go to login page
 Check PS version
-Log in
-Install 1-Click Upgrade module
 Upgrade
 Log out
 Check new version
  */
-describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSION_TO_UPGRADE}'`, async () => {
+describe(`Upgrade PrestaShop from '${global.PS_VERSION}' to '${global.PS_VERSION_UPGRADE_TO}'`, async () => {
   // before and after functions
   before(async function () {
     browserContext = await helper.createBrowserContext(this.browser);
@@ -48,6 +48,13 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   after(async () => {
     await helper.closeBrowserContext(browserContext);
+  });
+
+  afterEach(async function () {
+    if (this.currentTest.state === 'failed') {
+      await page.screenshot({path: `./screenshots/failed-step-${failedStepNumber}.png`, fullPage: true});
+      failedStepNumber += 1;
+    }
   });
 
   it('should go to login page', async () => {
@@ -70,73 +77,32 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
     await expect(pageTitle).to.contains(dashboardPage.pageTitle);
   });
 
-  if (global.PS_VERSION.includes('1.7.4')) {
-    it('should go to Modules & Services page', async () => {
+  it('should go to modules manager page', async () => {
+    await dashboardPage.goToSubMenu(
+      page,
+      dashboardPage.modulesParentLink,
+      dashboardPage.moduleManagerLink,
+    );
 
-      await dashboardPage.goToSubMenu(
-        page,
-        dashboardPage.modulesParentLink,
-        dashboardPage.moduleManagerLink,
-      );
-
-      const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
-    });
-
-    it('should go to Selection tab', async () => {
-      await moduleManagerPage.goToSelectionPage(page);
-
-      const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.selectionPageTitle);
-    });
-  } else {
-
-    it('should go to Modules Catalog page', async () => {
-      await dashboardPage.goToSubMenu(
-        page,
-        dashboardPage.modulesParentLink,
-        dashboardPage.moduleCatalogueLink,
-      );
-
-      const pageTitle = await moduleCatalogPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleCatalogPage.pageTitle);
-    });
-  }
-
-  it('should search 1-Click Upgrade module', async () => {
-    const isModuleVisible = await moduleCatalogPage.searchModule(page, moduleToInstall.tag, moduleToInstall.name);
-
-    await expect(isModuleVisible).to.be.true;
+    const pageTitle = await moduleManagerPage.getPageTitle(page);
+    await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
   });
 
-  it('should install 1-Click Upgrade module', async () => {
-    const textResult = await moduleCatalogPage.installModule(page, moduleToInstall.name);
+  it('should go to module configuration page', async () => {
+    await moduleManagerPage.searchModule(page, moduleData.tag, moduleData.name);
+    await moduleManagerPage.goToConfigurationPage(page, moduleData.name);
 
-    await expect(textResult).to.contain(moduleCatalogPage.installMessageSuccessful(moduleToInstall.tag));
-  });
-
-  if (global.PS_VERSION.includes('1.7.4')) {
-    it('should go to module configuration page', async () => {
-      await moduleManagerPage.goToModuleConfigurationPage(page, moduleToInstall.name);
-
-      const pageTitle = await moduleManagerPage.getPageTitle(page);
-      await expect(pageTitle).to.contains(moduleManagerPage.pageTitle);
-    });
-  } else {
-    it('should go to module configuration page', async () => {
-      await moduleCatalogPage.goToModuleConfigurationPage(page, moduleToInstall.name);
-
-      const pageTitle = await upgradeModulePage.getPageTitle(page);
-      await expect(pageTitle).to.contains(upgradeModulePage.pageTitle);
-    });
-  }
-
-  it('should copy the new Zip to the auto upgrade directory', async () => {
-    await upgradeModulePage.copyZipToUpgradeDirectory(page, global.PROJECT_PATH, global.DOWNLOAD_PATH, global.ZIP_NAME);
+    const pageTitle = await upgradeModulePage.getPageTitle(page);
+    await expect(pageTitle).to.contains(upgradeModulePage.pageTitle);
   });
 
   it('should fill \'Expert mode\' form', async () => {
-    const textResult = await upgradeModulePage.fillExpertModeForm(page, 'Local archive', global.ZIP_NAME, global.PS_VERSION_TO_UPGRADE);
+    const textResult = await upgradeModulePage.fillExpertModeForm(
+      page,
+      'Local archive',
+      global.ZIP_NAME,
+      global.PS_VERSION_UPGRADE_TO,
+    );
 
     await expect(textResult).to.contain(upgradeModulePage.configResultValidationMessage);
   });
@@ -165,6 +131,6 @@ describe(`Upgrade Prestashop : from '${global.PS_VERSION}' to '${global.PS_VERSI
 
   it('should check PS version', async () => {
     const psVersion = await newLoginPage.getPrestashopVersion(page);
-    await expect(psVersion).to.contains(global.PS_VERSION_TO_UPGRADE);
+    await expect(psVersion).to.contains(global.PS_VERSION_UPGRADE_TO);
   });
 });

@@ -1,0 +1,174 @@
+name: Nightly upgrades
+
+on:
+  push:
+  schedule:
+    - cron: '0 6 * * *' # Every day at 06:00Am
+
+jobs:
+  # First job: upgrade
+  upgrade:
+    name: Testing Autoupgrade module on UI
+    runs-on: ubuntu-latest
+    env:
+      nightly_storage: https://storage.googleapis.com/prestashop-core-nightly
+
+    strategy:
+      matrix:
+        ps_version_from: ["1.7.4.4", "1.7.5.2", "1.7.6.9", "1.7.7.1"]
+
+        ps_version_to:
+          - for_test: 1.7.7.2
+            filename: 1.7.7.x-prestashop_1.7.7.2.zip
+          - for_test: 1.7.8.0
+            filename: develop-prestashop_1.7.8.0.zip
+
+      fail-fast: false
+
+    steps:
+
+      # Setup PrestaShop and Install Autoupgrade module
+      - uses: actions/checkout@v2
+
+      - name: Get today date
+        run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
+
+      - uses: suisei-cn/actions-download-file@v1
+        name: Download nightly zip
+        with:
+          url: ${{ env.nightly_storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          target: "nightly-build/"
+
+      - name: Build PrestaShop ${{ matrix.ps_version_from }} on docker
+        env:
+          PS_VERSION: ${{ matrix.ps_version_from }}
+        shell: bash
+        run : |
+          docker-compose -f docker-compose.yml up -d
+          bash -c 'while [[ "$(curl -L -s -o /dev/null -w %{http_code} http://localhost/fr)" != "200" ]]; do sleep 5; done'
+
+      - name: Install autoupgrade module
+        shell: bash
+        run: |
+          docker exec -u www-data ps_web /var/www/html/bin/console --env=prod prestashop:module install autoupgrade
+          docker exec -u www-data ps_web mkdir -p /var/www/html/admin-dev/autoupgrade/download
+
+      - name: Copy nightly build to /var/www/html/admin-dev/autoupgrade/download folder
+        run: |
+          docker exec -u www-data ps_web cp \
+            /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
+            /var/www/html/admin-dev/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+
+      # Run tests
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 10
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        env:
+          URL_FO: "http://localhost/"
+          PS_VERSION: ${{ matrix.ps_version_from }}
+          PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
+          DOWNLOAD_PATH: "./nightly-build"
+          ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+        run: npm run test
+
+      - uses: actions/upload-artifact@v2
+        name: Upload failed screenshots
+        if: ${{ always() }}
+        with:
+          name: failed-steps-for-test-${{ matrix.ps_version_from }}-${{ matrix.ps_version_to.for_test }}
+          path: ./screenshots/
+
+      # Upload Mochawesome reports
+      - name: Rename Mochawesome report
+        if: ${{ always() }}
+        run: |
+          mkdir -p ./json-reports
+          cp ./mochawesome-report/mochawesome.json ./json-reports/upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}.json
+
+      - uses: actions/upload-artifact@v2
+        name: Upload Mochawesome report
+        if: ${{ always() }}
+        with:
+          name: tests-reports
+          path: ./json-reports
+
+  # Second job: merge reports (depends on upgrade job)
+  merge-reports:
+    name: Combine all tests reports
+    needs: upgrade
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    env:
+      report_path: ./json-reports
+      combined_report_name: upgrade_tests.json
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/download-artifact@v2
+        name: Download reports
+        with:
+          name: tests-reports
+          path: ${{ env.report_path }}
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Combine reports
+        shell: bash
+        run: ./.github/scripts/combine-reports.py "${{ env.report_path }}" "${{ env.report_path }}/${{ env.combined_report_name }}"
+
+      - uses: actions/upload-artifact@v2
+        name: Upload combined report
+        with:
+          name: combined-report
+          path: ${{ env.report_path }}/${{ env.combined_report_name }}
+
+  # Third job: Upload report on GCP (Depends on merge-reports job)
+  upload-report:
+    name: Upload nghtly report
+    needs: merge-reports
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+
+    env:
+      nightly_api_url: https://api-nightly.prestashop.com/hook/add
+      campaign: autoupgrade
+      plateform: chromium
+      report_path: ./json-reports
+      combined_report_name: upgrade_tests.json
+
+    steps:
+
+      - uses: actions/download-artifact@v2
+        name: Download report
+        with:
+          name: combined-report
+          path: ${{ env.report_path }}
+
+      - uses: google-github-actions/setup-gcloud@master
+        name: Setup Cloud Sdk
+        with:
+          project_id: ${{ secrets.GC_PROJECT_ID }}
+          service_account_key: ${{ secrets.GC_SERVICE_KEY }}
+          export_default_credentials: true
+
+      - name: Push result to the nightly board
+        shell: bash
+        run: |
+          export TODAY=`date -u +"%Y-%m-%d"`
+          export FILENAME=autoupgrade_ui_$TODAY.json
+          cp ${{ env.combined_report_name }} $FILENAME
+          gsutil cp $FILENAME gs://prestashop-core-nightly/reports
+          curl -X GET "${{ env.nightly_api_url }}?filename=$FILENAME&platform=${{ env.plateform }}&campaign=${{ env.campaign }}&token=${{ secrets.QANB_TOKEN }}"
+
+        working-directory: ${{ env.report_path }}
