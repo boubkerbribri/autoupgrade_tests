@@ -23,6 +23,7 @@ jobs:
           - for_test: 1.7.8.0
             filename: develop-prestashop_1.7.8.0.zip
 
+      continue-on-error: true
       fail-fast: false
 
     steps:
@@ -102,7 +103,6 @@ jobs:
   merge-reports:
     name: Combine all tests reports
     needs: upgrade
-    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     env:
@@ -137,7 +137,6 @@ jobs:
   upload-report:
     name: Upload nghtly report
     needs: merge-reports
-    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     env:
