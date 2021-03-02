@@ -9,6 +9,7 @@ jobs:
   # First job: upgrade
   upgrade:
     name: Testing Autoupgrade module on UI
+    continue-on-error: true
     runs-on: ubuntu-latest
     env:
       nightly_storage: https://storage.googleapis.com/prestashop-core-nightly
@@ -23,7 +24,6 @@ jobs:
           - for_test: 1.7.8.0
             filename: develop-prestashop_1.7.8.0.zip
 
-      continue-on-error: true
       fail-fast: false
 
     steps:
