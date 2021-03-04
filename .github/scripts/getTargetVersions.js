@@ -57,4 +57,4 @@ async function getTargetVersions() {
 }
 
 getTargetVersions()
-    .then((result) => console.log(result.toString()));
+    .then((result) => console.log(JSON.stringify(result)));
