@@ -53,13 +53,10 @@ jobs:
       # Setup PrestaShop and Install Autoupgrade module
       - uses: actions/checkout@v2
 
-      - name: Get today date
-        run: echo "TODAY_DATE=`date -u +"%Y-%m-%d"`" >> $GITHUB_ENV
-
       - uses: suisei-cn/actions-download-file@v1
         name: Download nightly zip
         with:
-          url: ${{ env.nightly_storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }}
+          url: ${{ env.nightly_storage }}/${{ matrix.ps_target_version.filename }}
           target: "nightly-build/"
 
       - name: Build PrestaShop ${{ matrix.ps_start_version }} on docker
@@ -79,8 +76,8 @@ jobs:
       - name: Copy nightly build to /var/www/html/admin-dev/autoupgrade/download folder
         run: |
           docker exec -u www-data ps_web cp \
-            /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }} \
-            /var/www/html/admin-dev/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }}
+            /nightly-build/${{ matrix.ps_target_version.filename }} \
+            /var/www/html/admin-dev/autoupgrade/download/${{ matrix.ps_target_version.filename }}
 
       # Run tests
       - name: Setup Node
@@ -97,7 +94,7 @@ jobs:
           PS_VERSION: ${{ matrix.ps_start_version }}
           PS_VERSION_UPGRADE_TO: ${{ matrix.ps_target_version.for_test }}
           DOWNLOAD_PATH: "./nightly-build"
-          ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }}
+          ZIP_NAME: ${{ matrix.ps_target_version.filename }}
         run: npm run test
 
       - uses: actions/upload-artifact@v2
