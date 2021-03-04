@@ -26,7 +26,8 @@ jobs:
       - id: set-target-versions
         shell: bash
         run: echo "::set-output name=TARGET_VERSIONS::$(node ./.github/scripts/getTargetVersions.js)"
-      - run: echo ${{ steps.set-target-versions.outputs.TARGET_VERSIONS }}
+        env:
+          API_URL: https://api-nightly.prestashop.com/reports
 
     outputs:
       target_versions: ${{ steps.set-target-versions.outputs.TARGET_VERSIONS }}
