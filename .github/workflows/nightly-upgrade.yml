@@ -24,10 +24,12 @@ jobs:
         run: npm install
 
       - id: set-target-versions
-        run: echo "::set-output name=versions::$(node ./.github/scripts/getTargetVersions.js)"
+        shell: bash
+        run: echo "::set-output name=TARGET_VERSIONS::$(node ./.github/scripts/getTargetVersions.js)"
+      - run: echo ${{ steps.set-target-versions.outputs.TARGET_VERSIONS }}
 
     outputs:
-      target_versions: ${{ steps.set-target-versions.outputs.versions }}
+      target_versions: ${{ steps.set-target-versions.outputs.TARGET_VERSIONS }}
 
   # First job: upgrade
   upgrade:
