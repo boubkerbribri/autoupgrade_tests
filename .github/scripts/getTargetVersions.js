@@ -53,7 +53,8 @@ async function getTargetVersions() {
     await targetVersions.push(row);
   }
 
-  console.log(targetVersions);
+  return targetVersions;
 }
 
-getTargetVersions();
+getTargetVersions()
+    .then((result) => console.log(result.toString()));
