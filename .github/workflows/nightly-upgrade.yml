@@ -6,23 +6,43 @@ on:
     - cron: "0 6 * * *" # Every day at 06:00Am
 
 jobs:
+  # Pre-job : Get Upgrade target versions
+  get_ps_target_versions:
+    name: Get Upgrade target versions
+    runs-on: ubuntu-18.04
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Node
+        uses: actions/setup-node@v2
+        with:
+          node-version: 10
+
+      - name: Install dependencies
+        shell: bash
+        run: npm install
+
+      - id: set-target-versions
+        run: echo "::set-output name=versions::$(node ./.github/scripts/getTargetVersions.js)"
+
+    outputs:
+      target_versions: ${{ steps.set-target-versions.outputs.versions }}
+
   # First job: upgrade
   upgrade:
     name: Testing Autoupgrade module on UI
     continue-on-error: true
-    runs-on: ubuntu-latest
+    needs: get_ps_target_versions
+    runs-on: ubuntu-18.04
     env:
       nightly_storage: https://storage.googleapis.com/prestashop-core-nightly
 
     strategy:
       matrix:
-        ps_version_from: ["1.7.4.4", "1.7.5.2", "1.7.6.9", "1.7.7.1"]
+        ps_start_version: ["1.7.4.4", "1.7.5.2", "1.7.6.9", "1.7.7.1"]
 
-        ps_version_to:
-          - for_test: 1.7.7.2
-            filename: 1.7.7.x-prestashop_1.7.7.2.zip
-          - for_test: 1.7.8.0
-            filename: develop-prestashop_1.7.8.0.zip
+        ps_target_version: ${{ fromJson(needs.get_ps_target_versions.outputs.target_versions) }}
 
       fail-fast: false
 
@@ -37,12 +57,12 @@ jobs:
       - uses: suisei-cn/actions-download-file@v1
         name: Download nightly zip
         with:
-          url: ${{ env.nightly_storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          url: ${{ env.nightly_storage }}/${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }}
           target: "nightly-build/"
 
-      - name: Build PrestaShop ${{ matrix.ps_version_from }} on docker
+      - name: Build PrestaShop ${{ matrix.ps_start_version }} on docker
         env:
-          PS_VERSION: ${{ matrix.ps_version_from }}
+          PS_VERSION: ${{ matrix.ps_start_version }}
         shell: bash
         run : |
           docker-compose -f docker-compose.yml up -d
@@ -57,8 +77,8 @@ jobs:
       - name: Copy nightly build to /var/www/html/admin-dev/autoupgrade/download folder
         run: |
           docker exec -u www-data ps_web cp \
-            /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }} \
-            /var/www/html/admin-dev/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+            /nightly-build/${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }} \
+            /var/www/html/admin-dev/autoupgrade/download/${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }}
 
       # Run tests
       - name: Setup Node
@@ -72,17 +92,17 @@ jobs:
       - name: Run tests
         env:
           URL_FO: "http://localhost/"
-          PS_VERSION: ${{ matrix.ps_version_from }}
-          PS_VERSION_UPGRADE_TO: ${{ matrix.ps_version_to.for_test }}
+          PS_VERSION: ${{ matrix.ps_start_version }}
+          PS_VERSION_UPGRADE_TO: ${{ matrix.ps_target_version.for_test }}
           DOWNLOAD_PATH: "./nightly-build"
-          ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_version_to.filename }}
+          ZIP_NAME: ${{ env.TODAY_DATE }}-${{ matrix.ps_target_version.filename }}
         run: npm run test
 
       - uses: actions/upload-artifact@v2
         name: Upload failed screenshots
         if: ${{ always() }}
         with:
-          name: failed-steps-for-test-${{ matrix.ps_version_from }}-${{ matrix.ps_version_to.for_test }}
+          name: failed-steps-for-test-${{ matrix.ps_start_version }}-${{ matrix.ps_target_version.for_test }}
           path: ./screenshots/
 
       # Upload Mochawesome reports
@@ -90,7 +110,7 @@ jobs:
         if: ${{ always() }}
         run: |
           mkdir -p ./json-reports
-          cp ./mochawesome-report/mochawesome.json ./json-reports/upgrade-from-${{ matrix.ps_version_from }}-to-${{ matrix.ps_version_to.for_test }}.json
+          cp ./mochawesome-report/mochawesome.json ./json-reports/upgrade-from-${{ matrix.ps_start_version }}-to-${{ matrix.ps_target_version.for_test }}.json
 
       - uses: actions/upload-artifact@v2
         name: Upload Mochawesome report
@@ -103,7 +123,7 @@ jobs:
   merge-reports:
     name: Combine all tests reports
     needs: upgrade
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     env:
       report_path: ./json-reports
@@ -137,7 +157,7 @@ jobs:
   upload-report:
     name: Upload nghtly report
     needs: merge-reports
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
 
     env:
       nightly_api_url: https://api-nightly.prestashop.com/hook/add
